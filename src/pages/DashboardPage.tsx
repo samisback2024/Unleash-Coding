@@ -11,9 +11,14 @@ import {
   Filter,
   AlertCircle,
   BookOpen,
+  Play,
 } from "lucide-react";
 import { Badge, ProgressBar, PathCardSkeleton } from "@/components/ui";
 import { getLearningPaths } from "@/services/learningPaths";
+import {
+  getAllEnrollments,
+  type EnrollmentWithPath,
+} from "@/services/progress";
 import { useAuth } from "@/context/AuthContext";
 import type { LearningPath } from "@/types";
 
@@ -31,7 +36,7 @@ const TAGS = [
 ];
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [search, setSearch] = useState("");
   const [diffFilter, setDiffFilter] = useState("All");
   const [tagFilter, setTagFilter] = useState("All");
@@ -39,6 +44,8 @@ export default function DashboardPage() {
   const [paths, setPaths] = useState<LearningPath[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const [enrollments, setEnrollments] = useState<EnrollmentWithPath[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,7 +65,26 @@ export default function DashboardPage() {
     };
   }, []);
 
-  const firstName = user?.email?.split("@")[0] ?? "Developer";
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    getAllEnrollments(user.id).then(({ data }) => {
+      if (!cancelled) setEnrollments(data);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const firstName =
+    profile?.username || user?.email?.split("@")[0] || "Developer";
+  const totalLessonsDone = enrollments.reduce(
+    (sum, e) => sum + e.completedLessonIds.length,
+    0,
+  );
+  const progressMap = new Map(
+    enrollments.map((e) => [e.pathId, e.progressPercent]),
+  );
 
   const filtered = paths.filter((p) => {
     const matchSearch =
@@ -91,11 +117,15 @@ export default function DashboardPage() {
           <div className="hidden md:flex flex-col items-end gap-3 shrink-0">
             <div className="flex items-center gap-2 bg-[#0f1117]/60 border border-[#2a2d3e] rounded-xl px-4 py-2.5 text-sm">
               <Flame className="w-4 h-4 text-[#f97316]" />
-              <span className="text-[#94a3b8]">0 day streak</span>
+              <span className="text-[#94a3b8]">
+                {profile?.streak ?? 0} day streak
+              </span>
             </div>
             <div className="flex items-center gap-2 bg-[#0f1117]/60 border border-[#2a2d3e] rounded-xl px-4 py-2.5 text-sm">
               <Zap className="w-4 h-4 text-[#6c63ff]" />
-              <span className="text-[#94a3b8]">0 XP earned</span>
+              <span className="text-[#94a3b8]">
+                {(profile?.xp ?? 0).toLocaleString()} XP earned
+              </span>
             </div>
           </div>
         </div>
@@ -106,13 +136,28 @@ export default function DashboardPage() {
         {[
           {
             label: "Paths Enrolled",
-            value: "0",
+            value: String(enrollments.length),
             icon: TrendingUp,
             color: "#6c63ff",
           },
-          { label: "Lessons Done", value: "0", icon: Zap, color: "#10b981" },
-          { label: "Current XP", value: "0", icon: Star, color: "#f59e0b" },
-          { label: "Day Streak", value: "0", icon: Flame, color: "#f97316" },
+          {
+            label: "Lessons Done",
+            value: String(totalLessonsDone),
+            icon: Zap,
+            color: "#10b981",
+          },
+          {
+            label: "Current XP",
+            value: (profile?.xp ?? 0).toLocaleString(),
+            icon: Star,
+            color: "#f59e0b",
+          },
+          {
+            label: "Day Streak",
+            value: String(profile?.streak ?? 0),
+            icon: Flame,
+            color: "#f97316",
+          },
         ].map(({ label, value, icon: Icon, color }) => (
           <div
             key={label}
@@ -131,6 +176,56 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Continue Learning */}
+      {enrollments.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#f1f5f9]">
+              Continue Learning
+            </h2>
+            <span className="text-xs text-[#64748b]">
+              {enrollments.length} path{enrollments.length !== 1 ? "s" : ""}{" "}
+              enrolled
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {enrollments.slice(0, 3).map((e) => (
+              <Link
+                key={e.pathId}
+                to={`/paths/${e.pathSlug}/lesson/start`}
+                className="group flex items-center gap-4 bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-4 hover:border-[#6c63ff]/60 transition-all"
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                  style={{ backgroundColor: `${e.pathColor}20` }}
+                >
+                  {e.pathIcon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#f1f5f9] truncate group-hover:text-[#6c63ff] transition-colors">
+                    {e.pathTitle}
+                  </p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <ProgressBar
+                      value={e.progressPercent}
+                      size="sm"
+                      className="flex-1"
+                    />
+                    <span className="text-xs text-[#6c63ff] shrink-0">
+                      {e.progressPercent}%
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[#64748b] mt-1">
+                    {e.completedLessonIds.length} / {e.totalLessons} lessons
+                  </p>
+                </div>
+                <Play className="w-4 h-4 text-[#6c63ff] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Paths section */}
       <div>
@@ -284,8 +379,12 @@ export default function DashboardPage() {
                     ))}
                   </div>
 
-                  {/* Progress bar (placeholder 0%) */}
-                  <ProgressBar value={0} size="sm" className="mb-4" />
+                  {/* Progress bar (real % if enrolled) */}
+                  <ProgressBar
+                    value={progressMap.get(path.id) ?? 0}
+                    size="sm"
+                    className="mb-4"
+                  />
 
                   {/* Footer */}
                   <div className="flex items-center justify-between text-xs text-[#64748b]">

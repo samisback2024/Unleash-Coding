@@ -1,68 +1,73 @@
-import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
+import {
+  getEnrollment,
+  enrollInPath,
+  markLessonComplete as markComplete,
+} from "@/services/progress";
 import type { UserProgress } from "@/types";
 
-export function useUserProgress(pathId?: string) {
-  const { user } = useAuth();
-  const [progress, setProgress] = useState<UserProgress | null>(null);
-  const [allProgress, setAllProgress] = useState<UserProgress[]>([]);
+export function useUserProgress(pathId?: string, totalLessons = 0) {
+  const { user, refreshProfile } = useAuth();
+  const [enrollment, setEnrollment] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !pathId) {
       setLoading(false);
       return;
     }
-
-    const fetch = async () => {
-      const query = supabase
-        .from("user_progress")
-        .select("*")
-        .eq("user_id", user.id);
-
-      const { data } = pathId
-        ? await query.eq("path_id", pathId).single()
-        : await query;
-
-      if (pathId) {
-        setProgress(data as UserProgress | null);
-      } else {
-        setAllProgress((data as UserProgress[]) ?? []);
+    let cancelled = false;
+    setLoading(true);
+    getEnrollment(user.id, pathId).then(({ data }) => {
+      if (!cancelled) {
+        setEnrollment(data);
+        setLoading(false);
       }
-      setLoading(false);
+    });
+    return () => {
+      cancelled = true;
     };
-
-    fetch();
   }, [user, pathId]);
 
-  const markLessonComplete = async (lessonId: string, xpReward = 10) => {
-    if (!user || !pathId || !progress) return;
-    const updated = {
-      completed_lesson_ids: [...(progress.completedLessonIds ?? []), lessonId],
-      xp_earned: (progress.xpEarned ?? 0) + xpReward,
-      last_activity_at: new Date().toISOString(),
-    };
-    await (
-      supabase as unknown as {
-        from: (t: string) => {
-          update: (d: unknown) => {
-            eq: (
-              a: string,
-              b: string,
-            ) => { eq: (a: string, b: string) => Promise<unknown> };
-          };
-        };
-      }
-    )
-      .from("user_progress")
-      .update(updated)
-      .eq("user_id", user.id)
-      .eq("path_id", pathId);
-    setProgress((prev) =>
-      prev ? { ...prev, ...(updated as Partial<UserProgress>) } : prev,
-    );
-  };
+  const enroll = useCallback(async () => {
+    if (!user || !pathId) return { error: "Not logged in" };
+    setEnrolling(true);
+    const { error } = await enrollInPath(user.id, pathId);
+    if (!error) {
+      const { data } = await getEnrollment(user.id, pathId);
+      setEnrollment(data);
+    }
+    setEnrolling(false);
+    return { error };
+  }, [user, pathId]);
 
-  return { progress, allProgress, loading, markLessonComplete };
+  const markLessonComplete = useCallback(
+    async (lessonId: string, xpReward = 10) => {
+      if (!user || !pathId) return;
+      const { error, alreadyDone } = await markComplete(
+        user.id,
+        pathId,
+        lessonId,
+        totalLessons,
+        xpReward,
+      );
+      if (!error && !alreadyDone) {
+        const { data } = await getEnrollment(user.id, pathId);
+        setEnrollment(data);
+        await refreshProfile();
+      }
+    },
+    [user, pathId, totalLessons, refreshProfile],
+  );
+
+  return {
+    enrollment,
+    isEnrolled: enrollment !== null,
+    loading,
+    enrolling,
+    enroll,
+    markLessonComplete,
+  };
 }

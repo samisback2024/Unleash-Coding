@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   ArrowLeft,
@@ -9,7 +9,8 @@ import {
   Zap,
 } from "lucide-react";
 import { Button, ProgressBar, Badge } from "@/components/ui";
-import { learningPaths } from "@/data/paths";
+import { supabase } from "@/lib/supabase";
+import { useUserProgress } from "@/hooks/useUserProgress";
 
 // Sample lesson content used when paths don't yet have real lessons
 const SAMPLE_LESSON = {
@@ -43,13 +44,56 @@ Hit **Mark Complete** when you're done to earn your XP and continue!
 };
 
 export default function LessonPage() {
-  const { slug } = useParams<{ slug: string }>();
+  const { slug, lessonId } = useParams<{ slug: string; lessonId?: string }>();
   const [completed, setCompleted] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
+  const [pathMeta, setPathMeta] = useState<{
+    id: string;
+    title: string;
+    color: string;
+    totalLessons: number;
+  } | null>(null);
 
-  const path = learningPaths.find((p) => p.slug === slug);
+  useEffect(() => {
+    if (!slug) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (supabase as any)
+      .from("learning_paths")
+      .select("id, title, color, total_lessons")
+      .eq("slug", slug)
+      .single()
+      .then(
+        ({
+          data,
+        }: {
+          data: {
+            id: string;
+            title: string;
+            color: string;
+            total_lessons: number;
+          } | null;
+        }) => {
+          if (data)
+            setPathMeta({
+              id: data.id,
+              title: data.title,
+              color: data.color,
+              totalLessons: data.total_lessons,
+            });
+        },
+      );
+  }, [slug]);
 
-  const handleComplete = () => {
+  const effectiveLessonId = lessonId ?? "intro";
+  const { enrollment, isEnrolled, markLessonComplete } = useUserProgress(
+    pathMeta?.id,
+    pathMeta?.totalLessons ?? 0,
+  );
+  const isAlreadyDone =
+    enrollment?.completedLessonIds.includes(effectiveLessonId) ?? false;
+
+  const handleComplete = async () => {
+    await markLessonComplete(effectiveLessonId, 10);
     setCompleted(true);
     setXpEarned(10);
   };
@@ -65,13 +109,13 @@ export default function LessonPage() {
           Dashboard
         </Link>
         <span>/</span>
-        {path && (
+        {pathMeta && (
           <>
             <Link
               to={`/paths/${slug}`}
               className="hover:text-[#f1f5f9] transition-colors"
             >
-              {path.title}
+              {pathMeta.title}
             </Link>
             <span>/</span>
           </>
@@ -80,20 +124,22 @@ export default function LessonPage() {
       </div>
 
       {/* Progress banner */}
-      {path && (
+      {pathMeta && (
         <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-4 flex items-center gap-4">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center text-xl shrink-0"
-            style={{ backgroundColor: `${path.color}20` }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ backgroundColor: `${pathMeta.color}20` }}
           >
-            {path.icon}
+            <BookOpen className="w-4 h-4" style={{ color: pathMeta.color }} />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs text-[#64748b]">Path Progress</span>
-              <span className="text-xs text-[#6c63ff]">0%</span>
+              <span className="text-xs text-[#6c63ff]">
+                {enrollment?.percentComplete ?? 0}%
+              </span>
             </div>
-            <ProgressBar value={0} size="sm" />
+            <ProgressBar value={enrollment?.percentComplete ?? 0} size="sm" />
           </div>
         </div>
       )}
@@ -111,7 +157,7 @@ export default function LessonPage() {
               <Clock className="w-3 h-3" />
               {SAMPLE_LESSON.duration}
             </span>
-            {completed && (
+            {(completed || isAlreadyDone) && (
               <Badge variant="success">
                 <CheckCircle className="w-3 h-3" />
                 Completed
@@ -192,7 +238,7 @@ export default function LessonPage() {
 
         {/* Lesson footer */}
         <div className="px-8 py-6 border-t border-[#2a2d3e] flex items-center justify-between gap-4">
-          <Link to={path ? `/paths/${slug}` : "/dashboard"}>
+          <Link to={pathMeta ? `/paths/${slug}` : "/dashboard"}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4" />
               Back to Path
@@ -205,10 +251,10 @@ export default function LessonPage() {
                 <Zap className="w-4 h-4" />+{xpEarned} XP
               </div>
             )}
-            {!completed ? (
-              <Button onClick={handleComplete}>
+            {!(completed || isAlreadyDone) ? (
+              <Button onClick={handleComplete} disabled={!isEnrolled}>
                 <CheckCircle className="w-4 h-4" />
-                Mark Complete
+                {isEnrolled ? "Mark Complete" : "Enroll to track"}
               </Button>
             ) : (
               <Button>

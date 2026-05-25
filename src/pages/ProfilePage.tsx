@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   Zap,
@@ -12,52 +12,47 @@ import {
 } from "lucide-react";
 import { Button, ProgressBar } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
-import { learningPaths } from "@/data/paths";
+import {
+  getAllEnrollments,
+  type EnrollmentWithPath,
+} from "@/services/progress";
 
-// Sample badges data
-const SAMPLE_BADGES = [
+const BADGES = [
   {
     id: "b1",
     name: "First Steps",
     icon: "👣",
-    color: "#10b981",
     description: "Completed your first lesson",
   },
   {
     id: "b2",
     name: "Problem Solver",
     icon: "💡",
-    color: "#f59e0b",
     description: "Solved 10 challenges",
   },
   {
     id: "b3",
     name: "Consistent",
     icon: "🔥",
-    color: "#f97316",
     description: "7 day learning streak",
   },
   {
     id: "b4",
     name: "Builder",
     icon: "🏗️",
-    color: "#6c63ff",
     description: "Completed your first project",
   },
   {
     id: "b5",
     name: "Explorer",
     icon: "🗺️",
-    color: "#a855f7",
     description: "Started 5 different paths",
   },
   {
     id: "b6",
     name: "Night Owl",
     icon: "🦉",
-    color: "#64748b",
     description: "Studied after midnight",
-    locked: true,
   },
 ];
 
@@ -86,24 +81,32 @@ function XpBar({ xp, level }: { xp: number; level: number }) {
 }
 
 export default function ProfilePage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [editMode, setEditMode] = useState(false);
+  const [enrollments, setEnrollments] = useState<EnrollmentWithPath[]>([]);
 
-  const username = user?.email?.split("@")[0] ?? "developer";
+  useEffect(() => {
+    if (!user) return;
+    getAllEnrollments(user.id).then(({ data }) => setEnrollments(data));
+  }, [user]);
+
+  const username =
+    profile?.username || user?.email?.split("@")[0] || "developer";
   const email = user?.email ?? "";
+  const totalLessonsDone = enrollments.reduce(
+    (sum, e) => sum + e.completedLessonIds.length,
+    0,
+  );
 
-  // Demo profile stats
   const stats = {
-    xp: 0,
-    level: 1,
-    streak: 0,
-    lessonsCompleted: 0,
+    xp: profile?.xp ?? 0,
+    level: profile?.level ?? 1,
+    streak: profile?.streak ?? 0,
+    lessonsCompleted: totalLessonsDone,
     challengesSolved: 0,
-    pathsEnrolled: 0,
+    pathsEnrolled: enrollments.length,
     joinedAt: user?.created_at ?? new Date().toISOString(),
   };
-
-  const recentPaths = learningPaths.slice(0, 3);
 
   return (
     <div className="max-w-5xl mx-auto space-y-8">
@@ -228,19 +231,16 @@ export default function ProfilePage() {
             <Trophy className="w-4 h-4 text-[#f59e0b]" />
             Badges
             <span className="ml-auto text-xs text-[#64748b]">
-              0 / {SAMPLE_BADGES.length} earned
+              {enrollments.filter((e) => e.progressPercent > 0).length} /{" "}
+              {enrollments.length} earned
             </span>
           </h2>
           <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {SAMPLE_BADGES.map((badge) => (
+            {BADGES.map((badge) => (
               <div
                 key={badge.id}
                 title={badge.description}
-                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
-                  (badge as { locked?: boolean }).locked
-                    ? "border-[#2a2d3e] opacity-30 grayscale"
-                    : "border-[#2a2d3e] hover:border-[#6c63ff]/50"
-                }`}
+                className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-[#2a2d3e] hover:border-[#6c63ff]/50 transition-all opacity-30"
               >
                 <span className="text-2xl">{badge.icon}</span>
                 <span className="text-[10px] text-center text-[#64748b] leading-tight">
@@ -267,7 +267,7 @@ export default function ProfilePage() {
           </Link>
         </div>
 
-        {stats.pathsEnrolled === 0 ? (
+        {enrollments.length === 0 ? (
           <div className="text-center py-10">
             <div className="w-12 h-12 rounded-xl bg-[#6c63ff]/10 flex items-center justify-center mx-auto mb-3">
               <BookOpen className="w-6 h-6 text-[#6c63ff]/50" />
@@ -281,25 +281,31 @@ export default function ProfilePage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {recentPaths.map((p) => (
+            {enrollments.map((e) => (
               <Link
-                key={p.id}
-                to={`/paths/${p.slug}`}
+                key={e.pathId}
+                to={`/paths/${e.pathSlug}`}
                 className="flex items-center gap-4 p-4 rounded-xl border border-[#2a2d3e] hover:border-[#6c63ff]/50 transition-all"
               >
                 <div
                   className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
-                  style={{ backgroundColor: `${p.color}20` }}
+                  style={{ backgroundColor: `${e.pathColor}20` }}
                 >
-                  {p.icon}
+                  {e.pathIcon}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-[#f1f5f9]">
-                    {p.title}
+                    {e.pathTitle}
                   </p>
-                  <ProgressBar value={0} size="sm" className="mt-1.5" />
+                  <ProgressBar
+                    value={e.progressPercent}
+                    size="sm"
+                    className="mt-1.5"
+                  />
                 </div>
-                <span className="text-xs text-[#64748b] shrink-0">0%</span>
+                <span className="text-xs text-[#64748b] shrink-0">
+                  {e.progressPercent}%
+                </span>
               </Link>
             ))}
           </div>

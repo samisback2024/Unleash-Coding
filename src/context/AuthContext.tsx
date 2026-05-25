@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -7,10 +8,13 @@ import {
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { getUserProfile } from "@/services/progress";
+import type { UserProfile } from "@/types";
 
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
+  profile: UserProfile | null;
   loading: boolean;
   signUp: (
     email: string,
@@ -22,6 +26,7 @@ interface AuthContextValue {
     password: string,
   ) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
+  refreshProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -29,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,30 +54,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  // Fetch / refresh profile whenever user changes
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+    getUserProfile(user.id).then(({ data }) => setProfile(data));
+  }, [user]);
+
+  const refreshProfile = useCallback(async () => {
+    if (!user) return;
+    const { data } = await getUserProfile(user.id);
+    setProfile(data);
+  }, [user]);
+
   const signUp = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { username } },
     });
     if (error) return { error: error.message };
 
-    // Create profile row
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
+    // Upsert profile — trigger handle_new_user() also does this, but we want
+    // to ensure the username is set (the trigger only uses the email prefix).
+    if (data.user) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      await (supabase.from("profiles") as any).insert({
-        id: user.id,
-        username,
-        full_name: username,
-        xp: 0,
-        level: 1,
-        streak: 0,
-        avatar_url: null,
-        bio: null,
-      });
+      await (supabase as any)
+        .from("profiles")
+        .upsert(
+          { id: data.user.id, username, full_name: username },
+          { onConflict: "id" },
+        );
     }
     return { error: null };
   };
@@ -90,7 +105,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, user, loading, signUp, signIn, signOut }}
+      value={{
+        session,
+        user,
+        profile,
+        loading,
+        signUp,
+        signIn,
+        signOut,
+        refreshProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

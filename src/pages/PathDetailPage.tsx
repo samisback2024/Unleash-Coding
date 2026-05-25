@@ -15,6 +15,7 @@ import {
   Trophy,
   Play,
   AlertCircle,
+  UserPlus,
 } from "lucide-react";
 import {
   Button,
@@ -23,6 +24,7 @@ import {
   PathDetailSkeleton,
 } from "@/components/ui";
 import { getLearningPathBySlug } from "@/services/learningPaths";
+import { useUserProgress } from "@/hooks/useUserProgress";
 import type { Module, LearningPath } from "@/types";
 
 type TabId = "curriculum" | "challenges" | "projects" | "checklist";
@@ -38,7 +40,17 @@ const TABS: {
   { id: "checklist", label: "Job Checklist", icon: CheckCircle },
 ];
 
-function ModuleAccordion({ mod, level }: { mod: Module; level: string }) {
+function ModuleAccordion({
+  mod,
+  level,
+  slug,
+  completedLessonIds,
+}: {
+  mod: Module;
+  level: string;
+  slug: string;
+  completedLessonIds: string[];
+}) {
   const [open, setOpen] = useState(false);
   return (
     <div className="border border-[#2a2d3e] rounded-xl overflow-hidden">
@@ -80,18 +92,31 @@ function ModuleAccordion({ mod, level }: { mod: Module; level: string }) {
             </p>
           ) : (
             <ul className="space-y-2">
-              {mod.lessons.map((lesson) => (
-                <li
-                  key={lesson.id}
-                  className="flex items-center gap-2 text-sm text-[#94a3b8]"
-                >
-                  <Play className="w-3.5 h-3.5 text-[#6c63ff]" />
-                  {lesson.title}
-                  <span className="ml-auto text-xs text-[#64748b]">
-                    {lesson.duration}
-                  </span>
-                </li>
-              ))}
+              {mod.lessons.map((lesson) => {
+                const done = completedLessonIds.includes(lesson.id);
+                return (
+                  <li key={lesson.id}>
+                    <Link
+                      to={`/paths/${slug}/lesson/${lesson.id}`}
+                      className="flex items-center gap-2 text-sm text-[#94a3b8] hover:text-[#f1f5f9] transition-colors group"
+                    >
+                      {done ? (
+                        <CheckCircle className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
+                      ) : (
+                        <Play className="w-3.5 h-3.5 text-[#6c63ff] shrink-0" />
+                      )}
+                      <span
+                        className={done ? "line-through text-[#64748b]" : ""}
+                      >
+                        {lesson.title}
+                      </span>
+                      <span className="ml-auto text-xs text-[#64748b]">
+                        {lesson.duration}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           )}
         </div>
@@ -108,6 +133,11 @@ export default function PathDetailPage() {
   const [path, setPath] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const { enrollment, isEnrolled, enrolling, enroll } = useUserProgress(
+    path?.id,
+    path?.totalLessons ?? 0,
+  );
 
   useEffect(() => {
     if (!slug) return;
@@ -226,12 +256,26 @@ export default function PathDetailPage() {
             <Link to={`/paths/${path.slug}/lesson/start`}>
               <Button size="lg" fullWidth className="shadow-lg">
                 <Play className="w-4 h-4" />
-                Start Path
+                {isEnrolled ? "Continue Learning" : "Start Path"}
               </Button>
             </Link>
-            <Button variant="secondary" size="lg" fullWidth>
-              Save for Later
-            </Button>
+            {isEnrolled ? (
+              <Button variant="secondary" size="lg" fullWidth disabled>
+                <CheckCircle className="w-4 h-4" />
+                Enrolled
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                size="lg"
+                fullWidth
+                loading={enrolling}
+                onClick={enroll}
+              >
+                <UserPlus className="w-4 h-4" />
+                Enroll in Path
+              </Button>
+            )}
           </div>
         </div>
 
@@ -273,11 +317,18 @@ export default function PathDetailPage() {
           <span className="text-sm font-medium text-[#f1f5f9]">
             Your Progress
           </span>
-          <span className="text-sm text-[#6c63ff] font-semibold">0%</span>
+          <span className="text-sm text-[#6c63ff] font-semibold">
+            {enrollment?.percentComplete ?? 0}%
+          </span>
         </div>
-        <ProgressBar value={0} showLabel={false} />
+        <ProgressBar
+          value={enrollment?.percentComplete ?? 0}
+          showLabel={false}
+        />
         <p className="text-xs text-[#64748b] mt-2">
-          0 / {path.totalLessons} lessons completed
+          {enrollment?.completedLessonIds.length ?? 0} / {path.totalLessons}{" "}
+          lessons completed
+          {!isEnrolled && " — enroll to track progress"}
         </p>
       </div>
 
@@ -312,13 +363,31 @@ export default function PathDetailPage() {
               </p>
             </div>
             {path.beginnerModules.map((m) => (
-              <ModuleAccordion key={m.id} mod={m} level="beginner" />
+              <ModuleAccordion
+                key={m.id}
+                mod={m}
+                level="beginner"
+                slug={path.slug}
+                completedLessonIds={enrollment?.completedLessonIds ?? []}
+              />
             ))}
             {path.intermediateModules.map((m) => (
-              <ModuleAccordion key={m.id} mod={m} level="intermediate" />
+              <ModuleAccordion
+                key={m.id}
+                mod={m}
+                level="intermediate"
+                slug={path.slug}
+                completedLessonIds={enrollment?.completedLessonIds ?? []}
+              />
             ))}
             {path.advancedModules.map((m) => (
-              <ModuleAccordion key={m.id} mod={m} level="advanced" />
+              <ModuleAccordion
+                key={m.id}
+                mod={m}
+                level="advanced"
+                slug={path.slug}
+                completedLessonIds={enrollment?.completedLessonIds ?? []}
+              />
             ))}
           </div>
         )}
