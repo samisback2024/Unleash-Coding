@@ -11,6 +11,9 @@ import PathDetailPage from "@/pages/PathDetailPage";
 import LessonPage from "@/pages/LessonPage";
 import ChallengePage from "@/pages/ChallengePage";
 import ChallengesPage from "@/pages/ChallengesPage";
+import ProjectsPage from "@/pages/ProjectsPage";
+import ProjectDetailPage from "@/pages/ProjectDetailPage";
+import PortfolioPage from "@/pages/PortfolioPage";
 import ProfilePage from "@/pages/ProfilePage";
 
 /** Redirect authenticated users away from auth pages */
@@ -69,7 +72,12 @@ function AppRoutes() {
           element={<ChallengePage />}
         />
         <Route path="/challenges" element={<ChallengesPage />} />
-        <Route path="/projects" element={<DashboardPage />} />
+        <Route path="/projects" element={<ProjectsPage />} />
+        <Route
+          path="/paths/:slug/project/:projectId"
+          element={<ProjectDetailPage />}
+        />
+        <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/leaderboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>

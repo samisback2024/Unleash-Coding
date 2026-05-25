@@ -9,6 +9,8 @@ import {
   Code2,
   Calendar,
   Edit3,
+  FolderOpen,
+  CheckCircle,
 } from "lucide-react";
 import { Button, ProgressBar } from "@/components/ui";
 import { useAuth } from "@/context/AuthContext";
@@ -17,6 +19,7 @@ import {
   type EnrollmentWithPath,
 } from "@/services/progress";
 import { getUserChallengeStats } from "@/services/challenges";
+import { getUserProjectStats } from "@/services/projects";
 
 const BADGES = [
   {
@@ -89,6 +92,11 @@ export default function ProfilePage() {
     totalCompleted: 0,
     totalXpFromChallenges: 0,
   });
+  const [projectStats, setProjectStats] = useState({
+    totalSubmitted: 0,
+    totalApproved: 0,
+    totalXpFromProjects: 0,
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -97,6 +105,13 @@ export default function ProfilePage() {
       setChallengeStats({
         totalCompleted: s.totalCompleted,
         totalXpFromChallenges: s.totalXpFromChallenges,
+      }),
+    );
+    getUserProjectStats(user.id).then((s) =>
+      setProjectStats({
+        totalSubmitted: s.totalSubmitted,
+        totalApproved: s.totalApproved,
+        totalXpFromProjects: s.totalXpFromProjects,
       }),
     );
   }, [user]);
@@ -262,6 +277,46 @@ export default function ProfilePage() {
           </div>
         </div>
       </div>
+
+      {/* Portfolio Projects */}
+      {projectStats.totalSubmitted > 0 && (
+        <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2">
+              <FolderOpen className="w-4 h-4 text-[#6c63ff]" />
+              Portfolio Projects
+            </h2>
+            <Link
+              to="/portfolio"
+              className="text-xs text-[#6c63ff] hover:text-[#a855f7] transition-colors"
+            >
+              View portfolio →
+            </Link>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-[#0f1117] rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-[#6c63ff]">
+                {projectStats.totalSubmitted}
+              </div>
+              <div className="text-[10px] text-[#64748b] mt-1">Submitted</div>
+            </div>
+            <div className="bg-[#0f1117] rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-[#10b981] flex items-center justify-center gap-1">
+                <CheckCircle className="w-5 h-5" />
+                {projectStats.totalApproved}
+              </div>
+              <div className="text-[10px] text-[#64748b] mt-1">Approved</div>
+            </div>
+            <div className="bg-[#0f1117] rounded-xl p-4 text-center">
+              <div className="text-2xl font-bold text-[#f59e0b] flex items-center justify-center gap-1">
+                <Zap className="w-4 h-4" />
+                {projectStats.totalXpFromProjects}
+              </div>
+              <div className="text-[10px] text-[#64748b] mt-1">XP earned</div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Enrolled paths */}
       <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6">

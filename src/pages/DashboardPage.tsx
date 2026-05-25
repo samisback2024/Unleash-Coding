@@ -20,6 +20,7 @@ import {
   type EnrollmentWithPath,
 } from "@/services/progress";
 import { getUserChallengeStats } from "@/services/challenges";
+import { getUserProjectStats } from "@/services/projects";
 import { useAuth } from "@/context/AuthContext";
 import type { LearningPath } from "@/types";
 
@@ -51,6 +52,11 @@ export default function DashboardPage() {
     totalCompleted: 0,
     totalXpFromChallenges: 0,
   });
+  const [projectStats, setProjectStats] = useState({
+    totalSubmitted: 0,
+    totalApproved: 0,
+    totalXpFromProjects: 0,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -81,6 +87,14 @@ export default function DashboardPage() {
         setChallengeStats({
           totalCompleted: s.totalCompleted,
           totalXpFromChallenges: s.totalXpFromChallenges,
+        });
+    });
+    getUserProjectStats(user.id).then((s) => {
+      if (!cancelled)
+        setProjectStats({
+          totalSubmitted: s.totalSubmitted,
+          totalApproved: s.totalApproved,
+          totalXpFromProjects: s.totalXpFromProjects,
         });
     });
     return () => {
@@ -278,6 +292,58 @@ export default function DashboardPage() {
                 className="text-sm font-semibold text-[#6c63ff] hover:text-[#5a52e0] transition-colors"
               >
                 Solve more →
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* My Projects */}
+      {projectStats.totalSubmitted > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#f1f5f9]">My Projects</h2>
+            <Link
+              to="/portfolio"
+              className="text-xs text-[#6c63ff] hover:underline"
+            >
+              View portfolio
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5">
+              <div className="w-8 h-8 rounded-xl bg-[#6c63ff]/15 flex items-center justify-center mb-2">
+                <TrendingUp className="w-4 h-4 text-[#6c63ff]" />
+              </div>
+              <p className="text-2xl font-bold text-[#f1f5f9]">
+                {projectStats.totalSubmitted}
+              </p>
+              <p className="text-xs text-[#64748b] mt-0.5">Submitted</p>
+            </div>
+            <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5">
+              <div className="w-8 h-8 rounded-xl bg-[#10b981]/15 flex items-center justify-center mb-2">
+                <Star className="w-4 h-4 text-[#10b981]" />
+              </div>
+              <p className="text-2xl font-bold text-[#f1f5f9]">
+                {projectStats.totalApproved}
+              </p>
+              <p className="text-xs text-[#64748b] mt-0.5">Approved</p>
+            </div>
+            <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5">
+              <div className="w-8 h-8 rounded-xl bg-[#f59e0b]/15 flex items-center justify-center mb-2">
+                <Zap className="w-4 h-4 text-[#f59e0b]" />
+              </div>
+              <p className="text-2xl font-bold text-[#f1f5f9]">
+                {projectStats.totalXpFromProjects}
+              </p>
+              <p className="text-xs text-[#64748b] mt-0.5">XP earned</p>
+            </div>
+            <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5 flex items-center justify-center">
+              <Link
+                to="/projects"
+                className="text-sm font-semibold text-[#6c63ff] hover:text-[#5a52e0] transition-colors"
+              >
+                View projects →
               </Link>
             </div>
           </div>

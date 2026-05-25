@@ -116,6 +116,54 @@ export interface ChallengeWithStatus extends ChallengeItem {
   attemptCount: number;
 }
 
+// ─── Portfolio project types ──────────────────────────────────────────────────
+
+export type PortfolioLevel =
+  | "Beginner Portfolio"
+  | "Internship Ready"
+  | "Junior Developer Ready"
+  | "Advanced / Company-Level";
+
+export interface ProjectItem {
+  id: string;
+  pathId: string;
+  title: string;
+  description: string;
+  difficulty: Difficulty;
+  portfolioLevel: PortfolioLevel;
+  requirements: string[];
+  skillsCovered: string[];
+  estimatedHours: number;
+  xpReward: number;
+  orderIndex: number;
+}
+
+export type ProjectSubmissionStatus =
+  | "submitted"
+  | "reviewed"
+  | "approved"
+  | "revision_requested";
+
+export interface ProjectSubmission {
+  id: string;
+  userId: string;
+  projectId: string;
+  githubUrl: string;
+  demoUrl: string;
+  notes: string;
+  status: ProjectSubmissionStatus;
+  feedback: string;
+  xpAwarded: number;
+  submittedAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectWithStatus extends ProjectItem {
+  submission: ProjectSubmission | null;
+  isSubmitted: boolean;
+  isApproved: boolean;
+}
+
 export interface Challenge {
   id: string;
   title: string;

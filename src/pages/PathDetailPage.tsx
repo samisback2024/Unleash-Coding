@@ -12,7 +12,6 @@ import {
   CheckCircle,
   ChevronDown,
   ChevronRight,
-  Trophy,
   Play,
   AlertCircle,
   UserPlus,
@@ -25,11 +24,18 @@ import {
 } from "@/components/ui";
 import { getLearningPathBySlug } from "@/services/learningPaths";
 import { getChallengesWithStatus } from "@/services/challenges";
+import { getProjectsWithStatus } from "@/services/projects";
 import { useUserProgress } from "@/hooks/useUserProgress";
 import { useAuth } from "@/context/AuthContext";
 import { ChallengeCard } from "@/components/challenge";
 import { ChallengeProgress } from "@/components/challenge";
-import type { Module, LearningPath, ChallengeWithStatus } from "@/types";
+import { ProjectCard, ProjectProgress } from "@/components/project";
+import type {
+  Module,
+  LearningPath,
+  ChallengeWithStatus,
+  ProjectWithStatus,
+} from "@/types";
 
 type TabId = "curriculum" | "challenges" | "projects" | "checklist";
 
@@ -139,6 +145,8 @@ export default function PathDetailPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [dbChallenges, setDbChallenges] = useState<ChallengeWithStatus[]>([]);
   const [challengesLoaded, setChallengesLoaded] = useState(false);
+  const [dbProjects, setDbProjects] = useState<ProjectWithStatus[]>([]);
+  const [projectsLoaded, setProjectsLoaded] = useState(false);
 
   const { user } = useAuth();
   const { enrollment, isEnrolled, enrolling, enroll } = useUserProgress(
@@ -174,6 +182,16 @@ export default function PathDetailPage() {
       setChallengesLoaded(true);
     });
   }, [activeTab, path, user, challengesLoaded]);
+
+  // Load DB projects when tab becomes active
+  useEffect(() => {
+    if (activeTab !== "projects" || !path?.id || !user || projectsLoaded)
+      return;
+    getProjectsWithStatus(path.id, user.id).then(({ data }) => {
+      setDbProjects(data);
+      setProjectsLoaded(true);
+    });
+  }, [activeTab, path, user, projectsLoaded]);
 
   if (loading) return <PathDetailSkeleton />;
 
@@ -452,82 +470,45 @@ export default function PathDetailPage() {
         {/* Projects */}
         {activeTab === "projects" && (
           <div className="space-y-4">
-            <p className="text-sm text-[#64748b]">
-              {path.projects.length + 1} projects (including capstone)
-            </p>
-            {path.projects.map((p) => (
-              <div
-                key={p.id}
-                className="bg-[#1e2130] border border-[#2a2d3e] rounded-xl p-6"
-              >
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <div>
-                    <h3 className="text-base font-semibold text-[#f1f5f9] mb-1">
-                      {p.title}
-                    </h3>
-                    <p className="text-sm text-[#64748b]">{p.description}</p>
-                  </div>
-                  <Badge
-                    variant={
-                      p.difficulty === "beginner"
-                        ? "success"
-                        : p.difficulty === "intermediate"
-                          ? "warning"
-                          : "danger"
-                    }
-                  >
-                    {p.difficulty}
-                  </Badge>
-                </div>
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {p.techStack.map((t) => (
-                    <span
-                      key={t}
-                      className="text-xs px-2 py-0.5 rounded-full bg-[#2a2d3e] text-[#94a3b8]"
-                    >
-                      {t}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-[#64748b] flex items-center gap-1">
-                    <Clock className="w-3 h-3" />
-                    {p.estimatedTime}
-                  </span>
-                  <Link to={`/paths/${path.slug}/project/${p.id}`}>
-                    <Button size="sm" variant="secondary">
-                      View Project
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            ))}
-
-            {/* Capstone */}
-            <div className="bg-gradient-to-br from-[#6c63ff]/15 to-[#a855f7]/10 border border-[#6c63ff]/40 rounded-xl p-6">
-              <div className="flex items-center gap-2 mb-3">
-                <Trophy className="w-4 h-4 text-[#f59e0b]" />
-                <span className="text-xs font-semibold text-[#f59e0b] uppercase tracking-wider">
-                  Capstone Project
-                </span>
-              </div>
-              <h3 className="text-base font-semibold text-[#f1f5f9] mb-2">
-                {path.capstoneProject.title}
-              </h3>
-              <p className="text-sm text-[#94a3b8] mb-4">
-                {path.capstoneProject.description}
-              </p>
-              <div className="flex flex-wrap gap-1.5">
-                {path.capstoneProject.techStack.map((t) => (
-                  <span
-                    key={t}
-                    className="text-xs px-2 py-0.5 rounded-full bg-[#6c63ff]/20 text-[#6c63ff]"
-                  >
-                    {t}
-                  </span>
+            {!projectsLoaded ? (
+              <div className="space-y-3">
+                {[...Array(3)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-44 bg-[#1e2130] border border-[#2a2d3e] rounded-2xl animate-pulse"
+                  />
                 ))}
               </div>
-            </div>
+            ) : dbProjects.length === 0 ? (
+              <div className="text-center py-12 text-[#64748b] text-sm">
+                No projects found for this path yet.
+              </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm text-[#64748b]">
+                    {dbProjects.length} portfolio project
+                    {dbProjects.length !== 1 ? "s" : ""}
+                  </p>
+                  <ProjectProgress
+                    total={dbProjects.length}
+                    submitted={dbProjects.filter((p) => p.isSubmitted).length}
+                    approved={dbProjects.filter((p) => p.isApproved).length}
+                    xpAvailable={dbProjects.reduce((s, p) => s + p.xpReward, 0)}
+                    xpEarned={dbProjects.reduce(
+                      (s, p) => s + (p.submission?.xpAwarded ?? 0),
+                      0,
+                    )}
+                    pathColor={path.color}
+                  />
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {dbProjects.map((p) => (
+                    <ProjectCard key={p.id} project={p} slug={slug ?? ""} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
 

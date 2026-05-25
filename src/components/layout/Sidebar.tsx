@@ -7,6 +7,7 @@ import {
   User,
   LogOut,
   Trophy,
+  Briefcase,
   Zap,
   Menu,
   X,
@@ -20,6 +21,7 @@ const navItems = [
   { to: "/paths", icon: BookOpen, label: "Learning Paths" },
   { to: "/challenges", icon: Code2, label: "Challenges" },
   { to: "/projects", icon: FolderOpen, label: "Projects" },
+  { to: "/portfolio", icon: Briefcase, label: "Portfolio" },
   { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   { to: "/profile", icon: User, label: "Profile" },
 ];
