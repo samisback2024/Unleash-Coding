@@ -10,6 +10,7 @@ import {
   Briefcase,
   Menu,
   X,
+  Users,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
@@ -21,6 +22,7 @@ const navItems = [
   { to: "/challenges", icon: Code2, label: "Challenges" },
   { to: "/projects", icon: FolderOpen, label: "Projects" },
   { to: "/portfolio", icon: Briefcase, label: "Portfolio" },
+  { to: "/community", icon: Users, label: "Community" },
   { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   { to: "/profile", icon: User, label: "Profile" },
 ];

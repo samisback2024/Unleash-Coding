@@ -409,6 +409,25 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* Community Widget */}
+      <div className="bg-gradient-to-br from-[#1e2130] to-[#252840] border border-[#2a2d3e] rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <div className="w-10 h-10 rounded-xl bg-[#6c63ff]/20 flex items-center justify-center shrink-0">
+          <Users className="w-5 h-5 text-[#6c63ff]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="text-sm font-semibold text-[#f1f5f9]">Community Showcase</h3>
+          <p className="text-xs text-[#64748b] mt-0.5">
+            Share your projects and discover what other learners are building
+          </p>
+        </div>
+        <Link
+          to="/community"
+          className="shrink-0 px-4 py-2 bg-[#6c63ff] hover:bg-[#5b52e8] rounded-lg text-sm font-medium text-white transition-colors"
+        >
+          Explore Community →
+        </Link>
+      </div>
+
       {/* Paths section */}
       <div>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">

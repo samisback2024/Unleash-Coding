@@ -451,3 +451,55 @@ export interface Database {
     };
   };
 }
+
+// ─── Community types ──────────────────────────────────────────────────────────
+
+export interface PublicProfile {
+  id: string;
+  userId: string;
+  displayName: string;
+  bio: string;
+  avatarUrl: string;
+  githubUrl: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
+  isPublic: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommunityProject {
+  id: string;
+  userId: string;
+  projectId: string;
+  githubUrl: string;
+  demoUrl: string;
+  notes: string;
+  status: string;
+  submittedAt: string;
+  isFeatured: boolean;
+  displayName: string;
+  avatarUrl: string;
+  profileGithubUrl: string;
+  projectTitle: string;
+  projectDescription: string;
+  portfolioLevel: string;
+  skillsCovered: string[];
+  pathTitle: string;
+  pathSlug: string;
+  pathCategory: string;
+  likeCount: number;
+  commentCount: number;
+  isLikedByMe?: boolean;
+}
+
+export interface ProjectComment {
+  id: string;
+  userId: string;
+  projectSubmissionId: string;
+  comment: string;
+  createdAt: string;
+  updatedAt: string;
+  displayName: string;
+  avatarUrl: string;
+}

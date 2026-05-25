@@ -28,6 +28,7 @@ import {
   BadgeGrid,
   RankTitleBadge,
 } from "@/components/gamification";
+import { PublicPortfolioSettings } from "@/components/community";
 import type { UserAchievement } from "@/types";
 
 export default function ProfilePage() {
@@ -296,6 +297,9 @@ export default function ProfilePage() {
           </div>
         )}
       </div>
+
+      {/* Public Portfolio Settings */}
+      {user && <PublicPortfolioSettings currentUserId={user.id} />}
     </div>
   );
 }

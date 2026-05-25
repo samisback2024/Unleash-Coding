@@ -16,6 +16,9 @@ import ProjectDetailPage from "@/pages/ProjectDetailPage";
 import PortfolioPage from "@/pages/PortfolioPage";
 import ProfilePage from "@/pages/ProfilePage";
 import LeaderboardPage from "@/pages/LeaderboardPage";
+import CommunityPage from "@/pages/CommunityPage";
+import PublicProfilePage from "@/pages/PublicProfilePage";
+import ProjectShowcasePage from "@/pages/ProjectShowcasePage";
 
 /** Redirect authenticated users away from auth pages */
 function PublicRoute({ children }: { children: React.ReactNode }) {
@@ -80,6 +83,9 @@ function AppRoutes() {
         />
         <Route path="/portfolio" element={<PortfolioPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/community" element={<CommunityPage />} />
+        <Route path="/u/:userId" element={<PublicProfilePage />} />
+        <Route path="/showcase/:submissionId" element={<ProjectShowcasePage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
