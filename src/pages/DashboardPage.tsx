@@ -12,6 +12,7 @@ import {
   AlertCircle,
   BookOpen,
   Play,
+  Trophy,
 } from "lucide-react";
 import { Badge, ProgressBar, PathCardSkeleton } from "@/components/ui";
 import { getLearningPaths } from "@/services/learningPaths";
@@ -21,8 +22,14 @@ import {
 } from "@/services/progress";
 import { getUserChallengeStats } from "@/services/challenges";
 import { getUserProjectStats } from "@/services/projects";
+import {
+  updateDailyStreak,
+  checkAndAwardAchievements,
+  getUserAchievements,
+} from "@/services/gamification";
+import { LevelCard, StreakCard } from "@/components/gamification";
 import { useAuth } from "@/context/AuthContext";
-import type { LearningPath } from "@/types";
+import type { LearningPath, UserAchievement } from "@/types";
 
 const FILTERS = ["All", "Beginner", "Intermediate", "Advanced"];
 const TAGS = [
@@ -57,6 +64,9 @@ export default function DashboardPage() {
     totalApproved: 0,
     totalXpFromProjects: 0,
   });
+  const [userAchievements, setUserAchievements] = useState<UserAchievement[]>(
+    [],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -97,6 +107,12 @@ export default function DashboardPage() {
           totalXpFromProjects: s.totalXpFromProjects,
         });
     });
+    getUserAchievements(user.id).then((data) => {
+      if (!cancelled) setUserAchievements(data);
+    });
+    // Update daily streak + check achievements on dashboard visit
+    updateDailyStreak(user.id);
+    checkAndAwardAchievements(user.id);
     return () => {
       cancelled = true;
     };
@@ -201,6 +217,49 @@ export default function DashboardPage() {
             <div className="text-2xl font-bold text-[#f1f5f9]">{value}</div>
           </div>
         ))}
+      </div>
+
+      {/* Gamification row: Level + Streak + Recent Achievements */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <LevelCard xp={profile?.xp ?? 0} />
+        <StreakCard streak={profile?.streak ?? 0} />
+        <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5 space-y-3">
+          <h3 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2">
+            <Trophy className="w-4 h-4 text-[#f59e0b]" />
+            Recent Achievements
+            <span className="ml-auto text-xs text-[#64748b]">
+              {userAchievements.length} earned
+            </span>
+          </h3>
+          {userAchievements.length === 0 ? (
+            <p className="text-xs text-[#64748b]">
+              Complete your first lesson to unlock achievements!
+            </p>
+          ) : (
+            <div className="space-y-1.5">
+              {userAchievements.slice(0, 3).map((ua) => (
+                <div
+                  key={ua.id}
+                  className="flex items-center gap-2 text-xs text-[#94a3b8]"
+                >
+                  <span className="text-base">{ua.achievement.icon}</span>
+                  <span className="truncate">{ua.achievement.name}</span>
+                  <span className="ml-auto text-[#6c63ff] shrink-0 font-medium">
+                    +{ua.achievement.xpReward} XP
+                  </span>
+                </div>
+              ))}
+              {userAchievements.length > 3 && (
+                <Link
+                  to="/profile"
+                  className="text-[10px] text-[#6c63ff] hover:underline"
+                >
+                  View all {userAchievements.length} →
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Continue Learning */}

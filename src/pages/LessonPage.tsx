@@ -27,11 +27,16 @@ import {
   LessonNotes,
   LessonRightPanel,
 } from "@/components/lesson";
+import {
+  checkAndAwardAchievements,
+} from "@/services/gamification";
+import { CompletionCelebration } from "@/components/gamification";
 import type {
   LessonWithModule,
   ModuleWithLessons,
   LessonNavItem,
   LessonQuizItem,
+  Achievement,
 } from "@/types";
 
 // ─── Loading skeleton ──────────────────────────────────────────────────────────
@@ -101,6 +106,10 @@ export default function LessonPage() {
   const [xpJustEarned, setXpJustEarned] = useState(0);
   const [quizAllAnswered, setQuizAllAnswered] = useState(false);
   const [noteHasContent, setNoteHasContent] = useState(false);
+  const [celebration, setCelebration] = useState<{
+    show: boolean;
+    achievements: Achievement[];
+  }>({ show: false, achievements: [] });
 
   const { enrollment, markLessonComplete } = useUserProgress(
     pathMeta?.id,
@@ -201,8 +210,14 @@ export default function LessonPage() {
     setCompleting(true);
     await markLessonComplete(lesson.id, 10);
     setXpJustEarned(10);
+    if (user) {
+      const newAch = await checkAndAwardAchievements(user.id);
+      if (newAch.length > 0) {
+        setCelebration({ show: true, achievements: newAch });
+      }
+    }
     setCompleting(false);
-  }, [lesson, completing, isCompleted, markLessonComplete]);
+  }, [lesson, completing, isCompleted, markLessonComplete, user]);
 
   const goNext = useCallback(() => {
     if (adjacent.next) navigate(`/paths/${slug}/lesson/${adjacent.next.id}`);
@@ -241,6 +256,13 @@ export default function LessonPage() {
         : "Reading";
 
   return (
+    <>
+      <CompletionCelebration
+        show={celebration.show}
+        achievements={celebration.achievements}
+        xpGained={xpJustEarned}
+        onClose={() => setCelebration({ show: false, achievements: [] })}
+      />
     <div className="flex gap-0 lg:gap-6 relative">
       {/* Sidebar */}
       <LessonSidebar
@@ -417,5 +439,6 @@ export default function LessonPage() {
         onNext={goNext}
       />
     </div>
+    </>
   );
 }

@@ -4,7 +4,6 @@ import {
   Zap,
   Flame,
   Trophy,
-  Star,
   BookOpen,
   Code2,
   Calendar,
@@ -20,69 +19,16 @@ import {
 } from "@/services/progress";
 import { getUserChallengeStats } from "@/services/challenges";
 import { getUserProjectStats } from "@/services/projects";
-
-const BADGES = [
-  {
-    id: "b1",
-    name: "First Steps",
-    icon: "👣",
-    description: "Completed your first lesson",
-  },
-  {
-    id: "b2",
-    name: "Problem Solver",
-    icon: "💡",
-    description: "Solved 10 challenges",
-  },
-  {
-    id: "b3",
-    name: "Consistent",
-    icon: "🔥",
-    description: "7 day learning streak",
-  },
-  {
-    id: "b4",
-    name: "Builder",
-    icon: "🏗️",
-    description: "Completed your first project",
-  },
-  {
-    id: "b5",
-    name: "Explorer",
-    icon: "🗺️",
-    description: "Started 5 different paths",
-  },
-  {
-    id: "b6",
-    name: "Night Owl",
-    icon: "🦉",
-    description: "Studied after midnight",
-  },
-];
-
-function XpBar({ xp, level }: { xp: number; level: number }) {
-  const xpForLevel = (l: number) => l * 1000;
-  const currentLevelXp = xpForLevel(level - 1);
-  const nextLevelXp = xpForLevel(level);
-  const progress = Math.min(
-    100,
-    ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100,
-  );
-  return (
-    <div className="w-full">
-      <div className="flex justify-between text-xs text-[#64748b] mb-1.5">
-        <span>Level {level}</span>
-        <span>
-          {xp} / {nextLevelXp} XP
-        </span>
-      </div>
-      <ProgressBar
-        value={progress}
-        colorClass="bg-gradient-to-r from-[#6c63ff] to-[#a855f7]"
-      />
-    </div>
-  );
-}
+import {
+  getUserAchievements,
+  checkAndAwardAchievements,
+} from "@/services/gamification";
+import {
+  LevelCard,
+  BadgeGrid,
+  RankTitleBadge,
+} from "@/components/gamification";
+import type { UserAchievement } from "@/types";
 
 export default function ProfilePage() {
   const { user, profile } = useAuth();
@@ -97,6 +43,9 @@ export default function ProfilePage() {
     totalApproved: 0,
     totalXpFromProjects: 0,
   });
+  const [userAchievements, setUserAchievements] = useState<UserAchievement[]>(
+    [],
+  );
 
   useEffect(() => {
     if (!user) return;
@@ -114,6 +63,8 @@ export default function ProfilePage() {
         totalXpFromProjects: s.totalXpFromProjects,
       }),
     );
+    getUserAchievements(user.id).then((data) => setUserAchievements(data));
+    checkAndAwardAchievements(user.id);
   }, [user]);
 
   const username =
@@ -159,8 +110,9 @@ export default function ProfilePage() {
 
           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
             <div>
-              <h1 className="text-xl font-bold text-[#f1f5f9] capitalize">
+              <h1 className="text-xl font-bold text-[#f1f5f9] capitalize flex items-center gap-2 flex-wrap">
                 {username}
+                <RankTitleBadge level={stats.level} />
               </h1>
               <p className="text-sm text-[#64748b]">{email}</p>
               <p className="text-sm text-[#94a3b8] mt-2 max-w-md">
@@ -230,51 +182,18 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Level & XP */}
-        <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2">
-            <Star className="w-4 h-4 text-[#f59e0b]" />
-            Level & XP
-          </h2>
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-xl bg-[#6c63ff]/20 flex flex-col items-center justify-center border border-[#6c63ff]/30">
-              <span className="text-xs text-[#6c63ff]">LVL</span>
-              <span className="text-xl font-bold text-[#6c63ff]">
-                {stats.level}
-              </span>
-            </div>
-            <div className="flex-1">
-              <XpBar xp={stats.xp} level={stats.level} />
-            </div>
-          </div>
-          <p className="text-xs text-[#64748b]">
-            Earn XP by completing lessons, challenges, and projects.
-          </p>
-        </div>
+        <LevelCard xp={stats.xp} />
 
         {/* Badges */}
         <div className="lg:col-span-2 bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6">
           <h2 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2 mb-4">
             <Trophy className="w-4 h-4 text-[#f59e0b]" />
-            Badges
+            Achievements
             <span className="ml-auto text-xs text-[#64748b]">
-              {enrollments.filter((e) => e.progressPercent > 0).length} /{" "}
-              {enrollments.length} earned
+              {userAchievements.length} earned
             </span>
           </h2>
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-            {BADGES.map((badge) => (
-              <div
-                key={badge.id}
-                title={badge.description}
-                className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-[#2a2d3e] hover:border-[#6c63ff]/50 transition-all opacity-30"
-              >
-                <span className="text-2xl">{badge.icon}</span>
-                <span className="text-[10px] text-center text-[#64748b] leading-tight">
-                  {badge.name}
-                </span>
-              </div>
-            ))}
-          </div>
+          <BadgeGrid achievements={userAchievements} />
         </div>
       </div>
 

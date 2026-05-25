@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { calculateLevel } from "@/lib/levels";
 import type { UserProfile, UserProgress } from "@/types";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -66,7 +67,7 @@ export async function updateProfileXp(
   if (!profile) return;
 
   const newXp = (profile.xp ?? 0) + xpToAdd;
-  const newLevel = Math.max(1, Math.floor(newXp / 1000) + 1);
+  const newLevel = calculateLevel(newXp);
 
   await db
     .from("profiles")

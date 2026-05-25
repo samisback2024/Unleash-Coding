@@ -242,6 +242,39 @@ export interface Badge {
   earnedAt?: string;
 }
 
+// ─── Gamification types ───────────────────────────────────────────────────────
+
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  achievementType: string;
+  requirementValue: number;
+  xpReward: number;
+  createdAt: string;
+}
+
+export interface UserAchievement {
+  id: string;
+  userId: string;
+  achievementId: string;
+  earnedAt: string;
+  achievement: Achievement;
+}
+
+export interface LeaderboardEntry {
+  userId: string;
+  displayName: string;
+  xp: number;
+  level: number;
+  streak: number;
+  lessonsCompleted: number;
+  challengesCompleted: number;
+  projectsSubmitted: number;
+  rank: number;
+}
+
 // ─── Supabase DB row types ────────────────────────────────────────────────────
 
 export interface DbLearningPath {

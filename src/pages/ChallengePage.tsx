@@ -21,7 +21,9 @@ import {
 } from "@/services/challenges";
 import { HintBox, AnswerInput, SolutionPanel } from "@/components/challenge";
 import { LessonContent } from "@/components/lesson";
-import type { ChallengeItem } from "@/types";
+import { checkAndAwardAchievements } from "@/services/gamification";
+import { CompletionCelebration } from "@/components/gamification";
+import type { ChallengeItem, Achievement } from "@/types";
 import { supabase } from "@/lib/supabase";
 
 const DIFF_CONFIG = {
@@ -90,6 +92,10 @@ export default function ChallengePage() {
   const [submitting, setSubmitting] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
   const [wrongCount, setWrongCount] = useState(0);
+  const [celebration, setCelebration] = useState<{
+    show: boolean;
+    achievements: Achievement[];
+  }>({ show: false, achievements: [] });
 
   useEffect(() => {
     if (!slug) return;
@@ -179,6 +185,12 @@ export default function ChallengePage() {
     if (correct) {
       setXpJustEarned(xpAwarded);
       setShowSolution(true);
+      if (user) {
+        const newAch = await checkAndAwardAchievements(user.id);
+        if (newAch.length > 0) {
+          setCelebration({ show: true, achievements: newAch });
+        }
+      }
     } else {
       setWrongCount((n) => n + 1);
     }
@@ -225,6 +237,13 @@ export default function ChallengePage() {
   const diff = DIFF_CONFIG[challenge.difficulty] ?? DIFF_CONFIG.beginner;
 
   return (
+    <>
+      <CompletionCelebration
+        show={celebration.show}
+        achievements={celebration.achievements}
+        xpGained={xpJustEarned}
+        onClose={() => setCelebration({ show: false, achievements: [] })}
+      />
     <div className="max-w-3xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#64748b] mb-5">
@@ -471,5 +490,6 @@ export default function ChallengePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

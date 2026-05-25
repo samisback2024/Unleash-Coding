@@ -15,6 +15,7 @@ import ProjectsPage from "@/pages/ProjectsPage";
 import ProjectDetailPage from "@/pages/ProjectDetailPage";
 import PortfolioPage from "@/pages/PortfolioPage";
 import ProfilePage from "@/pages/ProfilePage";
+import LeaderboardPage from "@/pages/LeaderboardPage";
 
 /** Redirect authenticated users away from auth pages */
 function PublicRoute({ children }: { children: React.ReactNode }) {
@@ -78,7 +79,7 @@ function AppRoutes() {
           element={<ProjectDetailPage />}
         />
         <Route path="/portfolio" element={<PortfolioPage />} />
-        <Route path="/leaderboard" element={<DashboardPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 

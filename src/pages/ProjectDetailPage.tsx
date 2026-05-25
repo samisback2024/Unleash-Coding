@@ -24,7 +24,9 @@ import {
   RequirementChecklist,
   ProjectSubmissionForm,
 } from "@/components/project";
-import type { ProjectItem, ProjectSubmission } from "@/types";
+import { checkAndAwardAchievements } from "@/services/gamification";
+import { CompletionCelebration } from "@/components/gamification";
+import type { ProjectItem, ProjectSubmission, Achievement } from "@/types";
 import { supabase } from "@/lib/supabase";
 
 const DIFF_CONFIG = {
@@ -83,6 +85,10 @@ export default function ProjectDetailPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [xpJustEarned, setXpJustEarned] = useState(0);
+  const [celebration, setCelebration] = useState<{
+    show: boolean;
+    achievements: Achievement[];
+  }>({ show: false, achievements: [] });
 
   // Load path meta
   useEffect(() => {
@@ -159,6 +165,10 @@ export default function ProjectDetailPage() {
         setSubmission(newSub);
         setXpJustEarned(xpAwarded);
         setSubmitted(true);
+        const newAch = await checkAndAwardAchievements(user.id);
+        if (newAch.length > 0) {
+          setCelebration({ show: true, achievements: newAch });
+        }
       }
 
       setSubmitting(false);
@@ -197,6 +207,13 @@ export default function ProjectDetailPage() {
   const portfolioColor = PORTFOLIO_COLORS[project.portfolioLevel] ?? "#64748b";
 
   return (
+    <>
+      <CompletionCelebration
+        show={celebration.show}
+        achievements={celebration.achievements}
+        xpGained={xpJustEarned}
+        onClose={() => setCelebration({ show: false, achievements: [] })}
+      />
     <div className="max-w-3xl mx-auto">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-[#64748b] mb-5">
@@ -394,5 +411,6 @@ export default function ProjectDetailPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
