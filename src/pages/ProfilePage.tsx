@@ -1,0 +1,310 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Zap,
+  Flame,
+  Trophy,
+  Star,
+  BookOpen,
+  Code2,
+  Calendar,
+  Edit3,
+} from "lucide-react";
+import { Button, ProgressBar } from "@/components/ui";
+import { useAuth } from "@/context/AuthContext";
+import { learningPaths } from "@/data/paths";
+
+// Sample badges data
+const SAMPLE_BADGES = [
+  {
+    id: "b1",
+    name: "First Steps",
+    icon: "👣",
+    color: "#10b981",
+    description: "Completed your first lesson",
+  },
+  {
+    id: "b2",
+    name: "Problem Solver",
+    icon: "💡",
+    color: "#f59e0b",
+    description: "Solved 10 challenges",
+  },
+  {
+    id: "b3",
+    name: "Consistent",
+    icon: "🔥",
+    color: "#f97316",
+    description: "7 day learning streak",
+  },
+  {
+    id: "b4",
+    name: "Builder",
+    icon: "🏗️",
+    color: "#6c63ff",
+    description: "Completed your first project",
+  },
+  {
+    id: "b5",
+    name: "Explorer",
+    icon: "🗺️",
+    color: "#a855f7",
+    description: "Started 5 different paths",
+  },
+  {
+    id: "b6",
+    name: "Night Owl",
+    icon: "🦉",
+    color: "#64748b",
+    description: "Studied after midnight",
+    locked: true,
+  },
+];
+
+function XpBar({ xp, level }: { xp: number; level: number }) {
+  const xpForLevel = (l: number) => l * 1000;
+  const currentLevelXp = xpForLevel(level - 1);
+  const nextLevelXp = xpForLevel(level);
+  const progress = Math.min(
+    100,
+    ((xp - currentLevelXp) / (nextLevelXp - currentLevelXp)) * 100,
+  );
+  return (
+    <div className="w-full">
+      <div className="flex justify-between text-xs text-[#64748b] mb-1.5">
+        <span>Level {level}</span>
+        <span>
+          {xp} / {nextLevelXp} XP
+        </span>
+      </div>
+      <ProgressBar
+        value={progress}
+        colorClass="bg-gradient-to-r from-[#6c63ff] to-[#a855f7]"
+      />
+    </div>
+  );
+}
+
+export default function ProfilePage() {
+  const { user } = useAuth();
+  const [editMode, setEditMode] = useState(false);
+
+  const username = user?.email?.split("@")[0] ?? "developer";
+  const email = user?.email ?? "";
+
+  // Demo profile stats
+  const stats = {
+    xp: 0,
+    level: 1,
+    streak: 0,
+    lessonsCompleted: 0,
+    challengesSolved: 0,
+    pathsEnrolled: 0,
+    joinedAt: user?.created_at ?? new Date().toISOString(),
+  };
+
+  const recentPaths = learningPaths.slice(0, 3);
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-8">
+      {/* Profile hero */}
+      <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl overflow-hidden">
+        {/* Cover gradient */}
+        <div className="h-28 bg-gradient-to-r from-[#6c63ff]/30 via-[#a855f7]/20 to-[#38bdf8]/20" />
+
+        <div className="px-6 pb-6">
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-10 mb-6">
+            {/* Avatar */}
+            <div className="relative w-20 h-20 rounded-2xl bg-gradient-to-br from-[#6c63ff] to-[#a855f7] flex items-center justify-center text-3xl font-bold text-white border-4 border-[#1e2130] shrink-0">
+              {username.slice(0, 2).toUpperCase()}
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setEditMode((v) => !v)}
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              {editMode ? "Save Profile" : "Edit Profile"}
+            </Button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div>
+              <h1 className="text-xl font-bold text-[#f1f5f9] capitalize">
+                {username}
+              </h1>
+              <p className="text-sm text-[#64748b]">{email}</p>
+              <p className="text-sm text-[#94a3b8] mt-2 max-w-md">
+                Full-stack developer on a mission to master the craft. Currently
+                focused on React & Node.js.
+              </p>
+              <div className="flex items-center gap-3 mt-3 text-xs text-[#64748b]">
+                <span className="flex items-center gap-1">
+                  <Calendar className="w-3.5 h-3.5" />
+                  Joined{" "}
+                  {new Date(stats.joinedAt).toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          {
+            icon: Zap,
+            label: "Total XP",
+            value: stats.xp.toLocaleString(),
+            color: "#6c63ff",
+          },
+          {
+            icon: Flame,
+            label: "Day Streak",
+            value: `${stats.streak}`,
+            color: "#f97316",
+          },
+          {
+            icon: BookOpen,
+            label: "Lessons Done",
+            value: `${stats.lessonsCompleted}`,
+            color: "#10b981",
+          },
+          {
+            icon: Code2,
+            label: "Challenges",
+            value: `${stats.challengesSolved}`,
+            color: "#f59e0b",
+          },
+        ].map(({ icon: Icon, label, value, color }) => (
+          <div
+            key={label}
+            className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs text-[#64748b]">{label}</span>
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: `${color}20` }}
+              >
+                <Icon className="w-3.5 h-3.5" style={{ color }} />
+              </div>
+            </div>
+            <div className="text-2xl font-bold text-[#f1f5f9]">{value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Level & XP */}
+        <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6 space-y-4">
+          <h2 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2">
+            <Star className="w-4 h-4 text-[#f59e0b]" />
+            Level & XP
+          </h2>
+          <div className="flex items-center gap-3">
+            <div className="w-14 h-14 rounded-xl bg-[#6c63ff]/20 flex flex-col items-center justify-center border border-[#6c63ff]/30">
+              <span className="text-xs text-[#6c63ff]">LVL</span>
+              <span className="text-xl font-bold text-[#6c63ff]">
+                {stats.level}
+              </span>
+            </div>
+            <div className="flex-1">
+              <XpBar xp={stats.xp} level={stats.level} />
+            </div>
+          </div>
+          <p className="text-xs text-[#64748b]">
+            Earn XP by completing lessons, challenges, and projects.
+          </p>
+        </div>
+
+        {/* Badges */}
+        <div className="lg:col-span-2 bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6">
+          <h2 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2 mb-4">
+            <Trophy className="w-4 h-4 text-[#f59e0b]" />
+            Badges
+            <span className="ml-auto text-xs text-[#64748b]">
+              0 / {SAMPLE_BADGES.length} earned
+            </span>
+          </h2>
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+            {SAMPLE_BADGES.map((badge) => (
+              <div
+                key={badge.id}
+                title={badge.description}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border transition-all ${
+                  (badge as { locked?: boolean }).locked
+                    ? "border-[#2a2d3e] opacity-30 grayscale"
+                    : "border-[#2a2d3e] hover:border-[#6c63ff]/50"
+                }`}
+              >
+                <span className="text-2xl">{badge.icon}</span>
+                <span className="text-[10px] text-center text-[#64748b] leading-tight">
+                  {badge.name}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Enrolled paths */}
+      <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold text-[#f1f5f9] flex items-center gap-2">
+            <BookOpen className="w-4 h-4 text-[#6c63ff]" />
+            Learning Paths
+          </h2>
+          <Link
+            to="/dashboard"
+            className="text-xs text-[#6c63ff] hover:text-[#a855f7] transition-colors"
+          >
+            Browse all →
+          </Link>
+        </div>
+
+        {stats.pathsEnrolled === 0 ? (
+          <div className="text-center py-10">
+            <div className="w-12 h-12 rounded-xl bg-[#6c63ff]/10 flex items-center justify-center mx-auto mb-3">
+              <BookOpen className="w-6 h-6 text-[#6c63ff]/50" />
+            </div>
+            <p className="text-sm text-[#64748b] mb-4">
+              You haven't started any paths yet.
+            </p>
+            <Link to="/dashboard">
+              <Button size="sm">Explore Paths</Button>
+            </Link>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {recentPaths.map((p) => (
+              <Link
+                key={p.id}
+                to={`/paths/${p.slug}`}
+                className="flex items-center gap-4 p-4 rounded-xl border border-[#2a2d3e] hover:border-[#6c63ff]/50 transition-all"
+              >
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
+                  style={{ backgroundColor: `${p.color}20` }}
+                >
+                  {p.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#f1f5f9]">
+                    {p.title}
+                  </p>
+                  <ProgressBar value={0} size="sm" className="mt-1.5" />
+                </div>
+                <span className="text-xs text-[#64748b] shrink-0">0%</span>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
