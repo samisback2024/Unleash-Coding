@@ -27,9 +27,7 @@ import {
   LessonNotes,
   LessonRightPanel,
 } from "@/components/lesson";
-import {
-  checkAndAwardAchievements,
-} from "@/services/gamification";
+import { checkAndAwardAchievements } from "@/services/gamification";
 import { CompletionCelebration } from "@/components/gamification";
 import type {
   LessonWithModule,
@@ -263,182 +261,184 @@ export default function LessonPage() {
         xpGained={xpJustEarned}
         onClose={() => setCelebration({ show: false, achievements: [] })}
       />
-    <div className="flex gap-0 lg:gap-6 relative">
-      {/* Sidebar */}
-      <LessonSidebar
-        modules={modules}
-        currentLessonId={lesson.id}
-        completedLessonIds={enrollment?.completedLessonIds ?? []}
-        slug={slug ?? ""}
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <div className="flex gap-0 lg:gap-6 relative">
+        {/* Sidebar */}
+        <LessonSidebar
+          modules={modules}
+          currentLessonId={lesson.id}
+          completedLessonIds={enrollment?.completedLessonIds ?? []}
+          slug={slug ?? ""}
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
 
-      {/* Main */}
-      <main className="flex-1 min-w-0">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm text-[#64748b] mb-5">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-1.5 rounded-lg bg-[#1e2130] border border-[#2a2d3e] text-[#64748b] hover:text-[#f1f5f9] transition-colors mr-1"
-          >
-            <Menu className="w-4 h-4" />
-          </button>
-          <Link
-            to="/dashboard"
-            className="hover:text-[#f1f5f9] transition-colors"
-          >
-            Dashboard
-          </Link>
-          <span>/</span>
-          <Link
-            to={`/paths/${slug}`}
-            className="hover:text-[#f1f5f9] transition-colors truncate max-w-[120px]"
-          >
-            {pathMeta?.title}
-          </Link>
-          <span>/</span>
-          <span className="text-[#94a3b8] truncate max-w-[160px]">
-            {lesson.title}
-          </span>
-        </div>
+        {/* Main */}
+        <main className="flex-1 min-w-0">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-[#64748b] mb-5">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="lg:hidden p-1.5 rounded-lg bg-[#1e2130] border border-[#2a2d3e] text-[#64748b] hover:text-[#f1f5f9] transition-colors mr-1"
+            >
+              <Menu className="w-4 h-4" />
+            </button>
+            <Link
+              to="/dashboard"
+              className="hover:text-[#f1f5f9] transition-colors"
+            >
+              Dashboard
+            </Link>
+            <span>/</span>
+            <Link
+              to={`/paths/${slug}`}
+              className="hover:text-[#f1f5f9] transition-colors truncate max-w-[120px]"
+            >
+              {pathMeta?.title}
+            </Link>
+            <span>/</span>
+            <span className="text-[#94a3b8] truncate max-w-[160px]">
+              {lesson.title}
+            </span>
+          </div>
 
-        {/* Lesson card */}
-        <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl overflow-hidden">
-          {/* Header */}
-          <div className="px-6 sm:px-8 py-6 border-b border-[#2a2d3e]">
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <Badge variant="accent">
-                <BookOpen className="w-3 h-3" />
-                {typeLabel}
-              </Badge>
-              <span className="text-xs text-[#64748b] flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                {lesson.duration}
-              </span>
-              {isCompleted && (
-                <Badge variant="success">
-                  <CheckCircle className="w-3 h-3" />
-                  Completed
+          {/* Lesson card */}
+          <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl overflow-hidden">
+            {/* Header */}
+            <div className="px-6 sm:px-8 py-6 border-b border-[#2a2d3e]">
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <Badge variant="accent">
+                  <BookOpen className="w-3 h-3" />
+                  {typeLabel}
                 </Badge>
-              )}
-              {xpJustEarned > 0 && (
-                <span className="flex items-center gap-1 text-xs font-semibold text-[#6c63ff]">
-                  <Zap className="w-3.5 h-3.5" />+{xpJustEarned} XP earned!
+                <span className="text-xs text-[#64748b] flex items-center gap-1">
+                  <Clock className="w-3 h-3" />
+                  {lesson.duration}
                 </span>
+                {isCompleted && (
+                  <Badge variant="success">
+                    <CheckCircle className="w-3 h-3" />
+                    Completed
+                  </Badge>
+                )}
+                {xpJustEarned > 0 && (
+                  <span className="flex items-center gap-1 text-xs font-semibold text-[#6c63ff]">
+                    <Zap className="w-3.5 h-3.5" />+{xpJustEarned} XP earned!
+                  </span>
+                )}
+              </div>
+              <h1 className="text-2xl font-bold text-[#f1f5f9]">
+                {lesson.title}
+              </h1>
+              <p className="text-xs text-[#64748b] mt-1">
+                {lesson.moduleTitle}
+              </p>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 sm:px-8 py-8">
+              {lesson.content ? (
+                <LessonContent content={lesson.content} />
+              ) : (
+                <div className="py-12 text-center text-[#64748b] text-sm">
+                  Content coming soon.
+                </div>
+              )}
+              {user && quizzes.length > 0 && (
+                <LessonQuiz
+                  quizzes={quizzes}
+                  userId={user.id}
+                  onAllAnswered={() => setQuizAllAnswered(true)}
+                />
+              )}
+              {user && (
+                <LessonNotes
+                  userId={user.id}
+                  lessonId={lesson.id}
+                  onChange={setNoteHasContent}
+                />
               )}
             </div>
-            <h1 className="text-2xl font-bold text-[#f1f5f9]">
-              {lesson.title}
-            </h1>
-            <p className="text-xs text-[#64748b] mt-1">{lesson.moduleTitle}</p>
-          </div>
 
-          {/* Content */}
-          <div className="px-6 sm:px-8 py-8">
-            {lesson.content ? (
-              <LessonContent content={lesson.content} />
-            ) : (
-              <div className="py-12 text-center text-[#64748b] text-sm">
-                Content coming soon.
-              </div>
-            )}
-            {user && quizzes.length > 0 && (
-              <LessonQuiz
-                quizzes={quizzes}
-                userId={user.id}
-                onAllAnswered={() => setQuizAllAnswered(true)}
-              />
-            )}
-            {user && (
-              <LessonNotes
-                userId={user.id}
-                lessonId={lesson.id}
-                onChange={setNoteHasContent}
-              />
-            )}
-          </div>
-
-          {/* Footer nav */}
-          <div className="px-6 sm:px-8 py-5 border-t border-[#2a2d3e] flex items-center justify-between gap-3">
-            {adjacent.prev ? (
-              <button
-                onClick={goPrev}
-                className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="hidden sm:inline truncate max-w-[140px]">
-                  {adjacent.prev.title}
-                </span>
-                <span className="sm:hidden">Previous</span>
-              </button>
-            ) : (
-              <Link
-                to={`/paths/${slug}`}
-                className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to path
-              </Link>
-            )}
-
-            {/* Mobile complete/next */}
-            <div className="lg:hidden flex items-center gap-2">
-              {!isCompleted ? (
+            {/* Footer nav */}
+            <div className="px-6 sm:px-8 py-5 border-t border-[#2a2d3e] flex items-center justify-between gap-3">
+              {adjacent.prev ? (
                 <button
-                  onClick={handleComplete}
-                  disabled={completing}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#6c63ff] hover:bg-[#5a52e0] text-white text-sm font-medium disabled:opacity-60 transition-colors"
+                  onClick={goPrev}
+                  className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
                 >
-                  <CheckCircle className="w-4 h-4" />
-                  {completing ? "Saving…" : "Mark Complete"}
+                  <ArrowLeft className="w-4 h-4" />
+                  <span className="hidden sm:inline truncate max-w-[140px]">
+                    {adjacent.prev.title}
+                  </span>
+                  <span className="sm:hidden">Previous</span>
                 </button>
-              ) : adjacent.next ? (
+              ) : (
+                <Link
+                  to={`/paths/${slug}`}
+                  className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back to path
+                </Link>
+              )}
+
+              {/* Mobile complete/next */}
+              <div className="lg:hidden flex items-center gap-2">
+                {!isCompleted ? (
+                  <button
+                    onClick={handleComplete}
+                    disabled={completing}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#6c63ff] hover:bg-[#5a52e0] text-white text-sm font-medium disabled:opacity-60 transition-colors"
+                  >
+                    <CheckCircle className="w-4 h-4" />
+                    {completing ? "Saving…" : "Mark Complete"}
+                  </button>
+                ) : adjacent.next ? (
+                  <button
+                    onClick={goNext}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#10b981] text-white text-sm font-medium"
+                  >
+                    Next <ArrowRight className="w-4 h-4" />
+                  </button>
+                ) : null}
+              </div>
+
+              {adjacent.next ? (
                 <button
                   onClick={goNext}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#10b981] text-white text-sm font-medium"
+                  className="hidden lg:flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
                 >
-                  Next <ArrowRight className="w-4 h-4" />
+                  <span className="truncate max-w-[140px]">
+                    {adjacent.next.title}
+                  </span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-              ) : null}
-            </div>
-
-            {adjacent.next ? (
-              <button
-                onClick={goNext}
-                className="hidden lg:flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
-              >
-                <span className="truncate max-w-[140px]">
-                  {adjacent.next.title}
+              ) : (
+                <span className="hidden lg:block text-xs text-[#64748b]">
+                  Last lesson
                 </span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <span className="hidden lg:block text-xs text-[#64748b]">
-                Last lesson
-              </span>
-            )}
+              )}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      {/* Right panel */}
-      <LessonRightPanel
-        pathTitle={pathMeta?.title ?? ""}
-        pathColor={pathMeta?.color ?? "#6c63ff"}
-        progressPercent={enrollment?.percentComplete ?? 0}
-        lessonsCompleted={enrollment?.completedLessonIds.length ?? 0}
-        totalLessons={pathMeta?.totalLessons ?? 0}
-        xpEarned={enrollment?.xpEarned ?? 0}
-        isCompleted={isCompleted}
-        quizAllAnswered={quizAllAnswered}
-        hasNote={noteHasContent}
-        onComplete={handleComplete}
-        completing={completing}
-        hasNextLesson={!!adjacent.next}
-        onNext={goNext}
-      />
-    </div>
+        {/* Right panel */}
+        <LessonRightPanel
+          pathTitle={pathMeta?.title ?? ""}
+          pathColor={pathMeta?.color ?? "#6c63ff"}
+          progressPercent={enrollment?.percentComplete ?? 0}
+          lessonsCompleted={enrollment?.completedLessonIds.length ?? 0}
+          totalLessons={pathMeta?.totalLessons ?? 0}
+          xpEarned={enrollment?.xpEarned ?? 0}
+          isCompleted={isCompleted}
+          quizAllAnswered={quizAllAnswered}
+          hasNote={noteHasContent}
+          onComplete={handleComplete}
+          completing={completing}
+          hasNextLesson={!!adjacent.next}
+          onNext={goNext}
+        />
+      </div>
     </>
   );
 }

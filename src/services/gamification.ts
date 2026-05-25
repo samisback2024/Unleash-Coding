@@ -6,11 +6,7 @@ import {
   type LevelInfo,
 } from "@/lib/levels";
 import { updateProfileXp } from "@/services/progress";
-import type {
-  Achievement,
-  UserAchievement,
-  LeaderboardEntry,
-} from "@/types";
+import type { Achievement, UserAchievement, LeaderboardEntry } from "@/types";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const db = supabase as any;
@@ -77,7 +73,7 @@ export async function checkAndAwardAchievements(
         .select("completed_lesson_ids, path_id, learning_paths(slug)")
         .eq("user_id", userId),
       db
-        .from("user_challenges")
+        .from("challenge_attempts")
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId)
         .eq("is_correct", true),

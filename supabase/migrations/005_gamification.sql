@@ -42,8 +42,8 @@ SELECT
   ), 0) AS lessons_completed,
   COALESCE((
     SELECT COUNT(*)::int
-    FROM user_challenges uc
-    WHERE uc.user_id = p.id AND uc.is_correct = true
+    FROM challenge_attempts ca
+    WHERE ca.user_id = p.id AND ca.is_correct = true
   ), 0) AS challenges_completed,
   COALESCE((
     SELECT COUNT(*)::int

@@ -244,252 +244,258 @@ export default function ChallengePage() {
         xpGained={xpJustEarned}
         onClose={() => setCelebration({ show: false, achievements: [] })}
       />
-    <div className="max-w-3xl mx-auto">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm text-[#64748b] mb-5">
-        <Link
-          to="/dashboard"
-          className="hover:text-[#f1f5f9] transition-colors"
-        >
-          Dashboard
-        </Link>
-        <span>/</span>
-        <Link
-          to={`/paths/${slug}`}
-          className="hover:text-[#f1f5f9] transition-colors truncate max-w-[120px]"
-        >
-          {pathMeta?.title}
-        </Link>
-        <span>/</span>
-        <span className="text-[#94a3b8] truncate max-w-[160px]">
-          {challenge.title}
-        </span>
-      </div>
-
-      <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl overflow-hidden">
-        {/* Header */}
-        <div className="px-6 sm:px-8 py-6 border-b border-[#2a2d3e]">
-          <div className="flex flex-wrap items-center gap-2 mb-3">
-            <Badge variant={diff.variant}>{challenge.difficulty}</Badge>
-            <Badge variant="default">
-              <Code2 className="w-3 h-3" />
-              {TYPE_LABELS[challenge.challengeType] ?? challenge.challengeType}
-            </Badge>
-            {(alreadyDone || (submitted && isCorrect)) && (
-              <Badge variant="success">
-                <CheckCircle className="w-3 h-3" />
-                Solved
-              </Badge>
-            )}
-            {xpJustEarned > 0 && (
-              <span className="flex items-center gap-1 text-xs font-semibold text-[#6c63ff]">
-                <Zap className="w-3.5 h-3.5" />+{xpJustEarned} XP earned!
-              </span>
-            )}
-          </div>
-          <h1 className="text-2xl font-bold text-[#f1f5f9]">
+      <div className="max-w-3xl mx-auto">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-sm text-[#64748b] mb-5">
+          <Link
+            to="/dashboard"
+            className="hover:text-[#f1f5f9] transition-colors"
+          >
+            Dashboard
+          </Link>
+          <span>/</span>
+          <Link
+            to={`/paths/${slug}`}
+            className="hover:text-[#f1f5f9] transition-colors truncate max-w-[120px]"
+          >
+            {pathMeta?.title}
+          </Link>
+          <span>/</span>
+          <span className="text-[#94a3b8] truncate max-w-[160px]">
             {challenge.title}
-          </h1>
-          <p className="text-sm text-[#64748b] mt-1">{challenge.description}</p>
-          <div className="flex items-center gap-4 mt-3">
-            <div
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
-              style={{ backgroundColor: `${diff.color}15`, color: diff.color }}
-            >
-              <Zap className="w-3.5 h-3.5" />
-              {challenge.xpReward} XP reward
-            </div>
-            {allChallenges.length > 0 && (
-              <span className="text-xs text-[#64748b]">
-                Challenge {currentIndex + 1} of {allChallenges.length}
-              </span>
-            )}
-          </div>
+          </span>
         </div>
 
-        {/* Body */}
-        <div className="px-6 sm:px-8 py-8 space-y-6">
-          {/* Instructions */}
-          <div>
-            <h2 className="text-sm font-semibold text-[#f1f5f9] mb-3 flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-[#6c63ff]/20 text-[#6c63ff] text-xs flex items-center justify-center font-bold">
-                ?
-              </span>
-              Your Challenge
-            </h2>
-            <div className="text-sm text-[#94a3b8] leading-relaxed">
-              <LessonContent content={challenge.instructions} />
+        <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl overflow-hidden">
+          {/* Header */}
+          <div className="px-6 sm:px-8 py-6 border-b border-[#2a2d3e]">
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <Badge variant={diff.variant}>{challenge.difficulty}</Badge>
+              <Badge variant="default">
+                <Code2 className="w-3 h-3" />
+                {TYPE_LABELS[challenge.challengeType] ??
+                  challenge.challengeType}
+              </Badge>
+              {(alreadyDone || (submitted && isCorrect)) && (
+                <Badge variant="success">
+                  <CheckCircle className="w-3 h-3" />
+                  Solved
+                </Badge>
+              )}
+              {xpJustEarned > 0 && (
+                <span className="flex items-center gap-1 text-xs font-semibold text-[#6c63ff]">
+                  <Zap className="w-3.5 h-3.5" />+{xpJustEarned} XP earned!
+                </span>
+              )}
+            </div>
+            <h1 className="text-2xl font-bold text-[#f1f5f9]">
+              {challenge.title}
+            </h1>
+            <p className="text-sm text-[#64748b] mt-1">
+              {challenge.description}
+            </p>
+            <div className="flex items-center gap-4 mt-3">
+              <div
+                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1 rounded-full"
+                style={{
+                  backgroundColor: `${diff.color}15`,
+                  color: diff.color,
+                }}
+              >
+                <Zap className="w-3.5 h-3.5" />
+                {challenge.xpReward} XP reward
+              </div>
+              {allChallenges.length > 0 && (
+                <span className="text-xs text-[#64748b]">
+                  Challenge {currentIndex + 1} of {allChallenges.length}
+                </span>
+              )}
             </div>
           </div>
 
-          {challenge.starterCode && (
+          {/* Body */}
+          <div className="px-6 sm:px-8 py-8 space-y-6">
+            {/* Instructions */}
+            <div>
+              <h2 className="text-sm font-semibold text-[#f1f5f9] mb-3 flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#6c63ff]/20 text-[#6c63ff] text-xs flex items-center justify-center font-bold">
+                  ?
+                </span>
+                Your Challenge
+              </h2>
+              <div className="text-sm text-[#94a3b8] leading-relaxed">
+                <LessonContent content={challenge.instructions} />
+              </div>
+            </div>
+
+            {challenge.starterCode && (
+              <div>
+                <h2 className="text-sm font-semibold text-[#f1f5f9] mb-3">
+                  Starter Code
+                </h2>
+                <LessonContent
+                  content={"```\n" + challenge.starterCode + "\n```"}
+                />
+              </div>
+            )}
+
+            {/* Answer */}
             <div>
               <h2 className="text-sm font-semibold text-[#f1f5f9] mb-3">
-                Starter Code
+                Your Answer
               </h2>
-              <LessonContent
-                content={"```\n" + challenge.starterCode + "\n```"}
+              <AnswerInput
+                options={challenge.options}
+                value={answer}
+                onChange={setAnswer}
+                disabled={submitted}
+                correctAnswer={submitted ? challenge.expectedAnswer : undefined}
+                submitted={submitted}
               />
             </div>
-          )}
 
-          {/* Answer */}
-          <div>
-            <h2 className="text-sm font-semibold text-[#f1f5f9] mb-3">
-              Your Answer
-            </h2>
-            <AnswerInput
-              options={challenge.options}
-              value={answer}
-              onChange={setAnswer}
-              disabled={submitted}
-              correctAnswer={submitted ? challenge.expectedAnswer : undefined}
-              submitted={submitted}
-            />
+            {/* Result feedback */}
+            {submitted && isCorrect !== null && (
+              <div
+                className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border ${
+                  isCorrect
+                    ? "bg-[#10b981]/10 border-[#10b981]/30"
+                    : "bg-[#ef4444]/10 border-[#ef4444]/30"
+                }`}
+              >
+                {isCorrect ? (
+                  <CheckCircle className="w-5 h-5 text-[#10b981] shrink-0 mt-0.5" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-[#ef4444] shrink-0 mt-0.5" />
+                )}
+                <div>
+                  <p
+                    className={`text-sm font-semibold ${isCorrect ? "text-[#10b981]" : "text-[#ef4444]"}`}
+                  >
+                    {isCorrect
+                      ? alreadyDone
+                        ? "Already solved — great work!"
+                        : "Correct! Well done 🎉"
+                      : "Not quite right — try again!"}
+                  </p>
+                  {!isCorrect && wrongCount >= 2 && (
+                    <p className="text-xs text-[#64748b] mt-1">
+                      Struggling? Check the hints or view the solution below.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap items-center gap-3">
+              {!submitted ? (
+                <button
+                  onClick={handleSubmit}
+                  disabled={!answer.trim() || submitting}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#6c63ff] hover:bg-[#5a52e0] text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {submitting ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Zap className="w-4 h-4" />
+                  )}
+                  {submitting ? "Checking…" : "Submit Answer"}
+                </button>
+              ) : !isCorrect ? (
+                <button
+                  onClick={handleRetry}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#6c63ff] hover:bg-[#5a52e0] text-white text-sm font-semibold transition-colors"
+                >
+                  Try Again
+                </button>
+              ) : null}
+
+              {submitted && isCorrect && nextChallenge && (
+                <button
+                  onClick={() => goTo(nextChallenge.id)}
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white text-sm font-semibold transition-colors"
+                >
+                  Next Challenge <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+
+              {!submitted && wrongCount >= 2 && !showSolution && (
+                <button
+                  onClick={() => {
+                    setShowSolution(true);
+                    setSubmitted(true);
+                  }}
+                  className="text-xs text-[#64748b] hover:text-[#94a3b8] transition-colors underline underline-offset-2"
+                >
+                  Show solution
+                </button>
+              )}
+            </div>
+
+            <HintBox hints={challenge.hints} />
+
+            {showSolution && (
+              <SolutionPanel
+                explanation={challenge.solutionExplanation}
+                correctAnswer={challenge.expectedAnswer}
+              />
+            )}
+
+            {submitted && isCorrect && !nextChallenge && (
+              <div className="flex items-center gap-3 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-2xl px-5 py-4">
+                <Trophy className="w-6 h-6 text-[#f59e0b] shrink-0" />
+                <div>
+                  <p className="text-sm font-semibold text-[#f59e0b]">
+                    All challenges complete!
+                  </p>
+                  <p className="text-xs text-[#94a3b8] mt-0.5">
+                    You've finished every challenge in this path.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Result feedback */}
-          {submitted && isCorrect !== null && (
-            <div
-              className={`flex items-start gap-3 px-4 py-3.5 rounded-xl border ${
-                isCorrect
-                  ? "bg-[#10b981]/10 border-[#10b981]/30"
-                  : "bg-[#ef4444]/10 border-[#ef4444]/30"
-              }`}
-            >
-              {isCorrect ? (
-                <CheckCircle className="w-5 h-5 text-[#10b981] shrink-0 mt-0.5" />
-              ) : (
-                <XCircle className="w-5 h-5 text-[#ef4444] shrink-0 mt-0.5" />
-              )}
-              <div>
-                <p
-                  className={`text-sm font-semibold ${isCorrect ? "text-[#10b981]" : "text-[#ef4444]"}`}
-                >
-                  {isCorrect
-                    ? alreadyDone
-                      ? "Already solved — great work!"
-                      : "Correct! Well done 🎉"
-                    : "Not quite right — try again!"}
-                </p>
-                {!isCorrect && wrongCount >= 2 && (
-                  <p className="text-xs text-[#64748b] mt-1">
-                    Struggling? Check the hints or view the solution below.
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex flex-wrap items-center gap-3">
-            {!submitted ? (
+          {/* Footer nav */}
+          <div className="px-6 sm:px-8 py-5 border-t border-[#2a2d3e] flex items-center justify-between gap-3">
+            {prevChallenge ? (
               <button
-                onClick={handleSubmit}
-                disabled={!answer.trim() || submitting}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#6c63ff] hover:bg-[#5a52e0] text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onClick={() => goTo(prevChallenge.id)}
+                className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
               >
-                {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Zap className="w-4 h-4" />
-                )}
-                {submitting ? "Checking…" : "Submit Answer"}
+                <ArrowLeft className="w-4 h-4" />
+                <span className="hidden sm:inline truncate max-w-[140px]">
+                  {prevChallenge.title}
+                </span>
+                <span className="sm:hidden">Previous</span>
               </button>
-            ) : !isCorrect ? (
-              <button
-                onClick={handleRetry}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#6c63ff] hover:bg-[#5a52e0] text-white text-sm font-semibold transition-colors"
+            ) : (
+              <Link
+                to={`/paths/${slug}`}
+                className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
               >
-                Try Again
-              </button>
-            ) : null}
-
-            {submitted && isCorrect && nextChallenge && (
+                <ArrowLeft className="w-4 h-4" />
+                Back to path
+              </Link>
+            )}
+            {nextChallenge ? (
               <button
                 onClick={() => goTo(nextChallenge.id)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#10b981] hover:bg-[#059669] text-white text-sm font-semibold transition-colors"
+                className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
               >
-                Next Challenge <ArrowRight className="w-4 h-4" />
+                <span className="hidden sm:inline truncate max-w-[140px]">
+                  {nextChallenge.title}
+                </span>
+                <span className="sm:hidden">Next</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
-            )}
-
-            {!submitted && wrongCount >= 2 && !showSolution && (
-              <button
-                onClick={() => {
-                  setShowSolution(true);
-                  setSubmitted(true);
-                }}
-                className="text-xs text-[#64748b] hover:text-[#94a3b8] transition-colors underline underline-offset-2"
-              >
-                Show solution
-              </button>
+            ) : (
+              <span className="text-xs text-[#64748b]">Last challenge</span>
             )}
           </div>
-
-          <HintBox hints={challenge.hints} />
-
-          {showSolution && (
-            <SolutionPanel
-              explanation={challenge.solutionExplanation}
-              correctAnswer={challenge.expectedAnswer}
-            />
-          )}
-
-          {submitted && isCorrect && !nextChallenge && (
-            <div className="flex items-center gap-3 bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-2xl px-5 py-4">
-              <Trophy className="w-6 h-6 text-[#f59e0b] shrink-0" />
-              <div>
-                <p className="text-sm font-semibold text-[#f59e0b]">
-                  All challenges complete!
-                </p>
-                <p className="text-xs text-[#94a3b8] mt-0.5">
-                  You've finished every challenge in this path.
-                </p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer nav */}
-        <div className="px-6 sm:px-8 py-5 border-t border-[#2a2d3e] flex items-center justify-between gap-3">
-          {prevChallenge ? (
-            <button
-              onClick={() => goTo(prevChallenge.id)}
-              className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span className="hidden sm:inline truncate max-w-[140px]">
-                {prevChallenge.title}
-              </span>
-              <span className="sm:hidden">Previous</span>
-            </button>
-          ) : (
-            <Link
-              to={`/paths/${slug}`}
-              className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to path
-            </Link>
-          )}
-          {nextChallenge ? (
-            <button
-              onClick={() => goTo(nextChallenge.id)}
-              className="flex items-center gap-1.5 text-sm text-[#64748b] hover:text-[#f1f5f9] transition-colors"
-            >
-              <span className="hidden sm:inline truncate max-w-[140px]">
-                {nextChallenge.title}
-              </span>
-              <span className="sm:hidden">Next</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          ) : (
-            <span className="text-xs text-[#64748b]">Last challenge</span>
-          )}
         </div>
       </div>
-    </div>
     </>
   );
 }
