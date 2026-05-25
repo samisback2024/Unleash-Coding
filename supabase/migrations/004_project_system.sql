@@ -4,22 +4,64 @@
 
 -- ─── Extend projects table ────────────────────────────────────────────────────
 
+-- Add scalar columns first (safe to repeat)
 ALTER TABLE projects
   ADD COLUMN IF NOT EXISTS portfolio_level   text    DEFAULT 'Beginner Portfolio',
-  ADD COLUMN IF NOT EXISTS requirements      jsonb   DEFAULT '[]',
-  ADD COLUMN IF NOT EXISTS skills_covered    jsonb   DEFAULT '[]',
   ADD COLUMN IF NOT EXISTS estimated_hours   int     DEFAULT 5,
   ADD COLUMN IF NOT EXISTS xp_reward         int     DEFAULT 100,
   ADD COLUMN IF NOT EXISTS order_index       int     DEFAULT 0;
 
+-- Handle requirements: add as jsonb, or convert from text if it already exists
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'projects' AND column_name = 'requirements'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN requirements jsonb NOT NULL DEFAULT '[]';
+  ELSIF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'projects' AND column_name = 'requirements'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE projects ALTER COLUMN requirements DROP DEFAULT;
+    ALTER TABLE projects
+      ALTER COLUMN requirements TYPE jsonb
+      USING COALESCE(NULLIF(requirements, '')::jsonb, '[]'::jsonb);
+    ALTER TABLE projects ALTER COLUMN requirements SET DEFAULT '[]'::jsonb;
+  END IF;
+END $$;
+
+-- Handle skills_covered: add as jsonb, or convert from text if it already exists
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'projects' AND column_name = 'skills_covered'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN skills_covered jsonb NOT NULL DEFAULT '[]';
+  ELSIF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'projects' AND column_name = 'skills_covered'
+      AND data_type = 'text'
+  ) THEN
+    ALTER TABLE projects ALTER COLUMN skills_covered DROP DEFAULT;
+    ALTER TABLE projects
+      ALTER COLUMN skills_covered TYPE jsonb
+      USING COALESCE(NULLIF(skills_covered, '')::jsonb, '[]'::jsonb);
+    ALTER TABLE projects ALTER COLUMN skills_covered SET DEFAULT '[]'::jsonb;
+  END IF;
+END $$;
+
 -- Patch existing rows so NULLs don't cause issues
 UPDATE projects SET
-  portfolio_level  = COALESCE(portfolio_level, 'Beginner Portfolio'),
-  requirements     = COALESCE(requirements,    '[]'::jsonb),
-  skills_covered   = COALESCE(skills_covered,  '[]'::jsonb),
-  estimated_hours  = COALESCE(estimated_hours, 5),
-  xp_reward        = COALESCE(xp_reward,       100),
-  order_index      = COALESCE(order_index,     0);
+  portfolio_level = COALESCE(portfolio_level, 'Beginner Portfolio'),
+  estimated_hours = COALESCE(estimated_hours, 5),
+  xp_reward       = COALESCE(xp_reward,       100),
+  order_index     = COALESCE(order_index,     0);
+
+UPDATE projects SET requirements  = '[]'::jsonb WHERE requirements  IS NULL;
+UPDATE projects SET skills_covered = '[]'::jsonb WHERE skills_covered IS NULL;
 
 -- ─── Project submissions table ────────────────────────────────────────────────
 
