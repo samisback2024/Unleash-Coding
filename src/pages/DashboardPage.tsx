@@ -19,6 +19,7 @@ import {
   getAllEnrollments,
   type EnrollmentWithPath,
 } from "@/services/progress";
+import { getUserChallengeStats } from "@/services/challenges";
 import { useAuth } from "@/context/AuthContext";
 import type { LearningPath } from "@/types";
 
@@ -46,6 +47,10 @@ export default function DashboardPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const [enrollments, setEnrollments] = useState<EnrollmentWithPath[]>([]);
+  const [challengeStats, setChallengeStats] = useState({
+    totalCompleted: 0,
+    totalXpFromChallenges: 0,
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +75,13 @@ export default function DashboardPage() {
     let cancelled = false;
     getAllEnrollments(user.id).then(({ data }) => {
       if (!cancelled) setEnrollments(data);
+    });
+    getUserChallengeStats(user.id).then((s) => {
+      if (!cancelled)
+        setChallengeStats({
+          totalCompleted: s.totalCompleted,
+          totalXpFromChallenges: s.totalXpFromChallenges,
+        });
     });
     return () => {
       cancelled = true;
@@ -223,6 +235,51 @@ export default function DashboardPage() {
                 <Play className="w-4 h-4 text-[#6c63ff] opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
               </Link>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* My Challenges */}
+      {challengeStats.totalCompleted > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-[#f1f5f9]">My Challenges</h2>
+            <Link
+              to="/challenges"
+              className="text-xs text-[#6c63ff] hover:underline"
+            >
+              View all
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5">
+              <div className="w-8 h-8 rounded-xl bg-[#10b981]/15 flex items-center justify-center mb-2">
+                <BookOpen className="w-4 h-4 text-[#10b981]" />
+              </div>
+              <p className="text-2xl font-bold text-[#f1f5f9]">
+                {challengeStats.totalCompleted}
+              </p>
+              <p className="text-xs text-[#64748b] mt-0.5">Challenges solved</p>
+            </div>
+            <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5">
+              <div className="w-8 h-8 rounded-xl bg-[#6c63ff]/15 flex items-center justify-center mb-2">
+                <Zap className="w-4 h-4 text-[#6c63ff]" />
+              </div>
+              <p className="text-2xl font-bold text-[#f1f5f9]">
+                {challengeStats.totalXpFromChallenges}
+              </p>
+              <p className="text-xs text-[#64748b] mt-0.5">
+                XP from challenges
+              </p>
+            </div>
+            <div className="col-span-2 sm:col-span-1 bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-5 flex items-center justify-center">
+              <Link
+                to="/challenges"
+                className="text-sm font-semibold text-[#6c63ff] hover:text-[#5a52e0] transition-colors"
+              >
+                Solve more →
+              </Link>
+            </div>
           </div>
         </div>
       )}

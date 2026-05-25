@@ -72,6 +72,50 @@ export interface LessonNoteData {
   updatedAt: string;
 }
 
+// ─── Challenge engine types ───────────────────────────────────────────────────
+
+export type ChallengeType =
+  | "multiple_choice"
+  | "short_answer"
+  | "code_reading"
+  | "debugging"
+  | "algorithm"
+  | "scenario"
+  | "implementation";
+
+export interface ChallengeItem {
+  id: string;
+  pathId: string;
+  title: string;
+  description: string;
+  difficulty: Difficulty;
+  challengeType: ChallengeType;
+  instructions: string;
+  starterCode: string;
+  options: string[];
+  expectedAnswer: string;
+  hints: string[];
+  solutionExplanation: string;
+  xpReward: number;
+  orderIndex: number;
+}
+
+export interface ChallengeAttempt {
+  id: string;
+  userId: string;
+  challengeId: string;
+  submittedAnswer: string;
+  isCorrect: boolean;
+  xpAwarded: number;
+  completedAt: string | null;
+  createdAt: string;
+}
+
+export interface ChallengeWithStatus extends ChallengeItem {
+  isCompleted: boolean;
+  attemptCount: number;
+}
+
 export interface Challenge {
   id: string;
   title: string;

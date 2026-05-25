@@ -16,6 +16,7 @@ import {
   getAllEnrollments,
   type EnrollmentWithPath,
 } from "@/services/progress";
+import { getUserChallengeStats } from "@/services/challenges";
 
 const BADGES = [
   {
@@ -84,10 +85,20 @@ export default function ProfilePage() {
   const { user, profile } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [enrollments, setEnrollments] = useState<EnrollmentWithPath[]>([]);
+  const [challengeStats, setChallengeStats] = useState({
+    totalCompleted: 0,
+    totalXpFromChallenges: 0,
+  });
 
   useEffect(() => {
     if (!user) return;
     getAllEnrollments(user.id).then(({ data }) => setEnrollments(data));
+    getUserChallengeStats(user.id).then((s) =>
+      setChallengeStats({
+        totalCompleted: s.totalCompleted,
+        totalXpFromChallenges: s.totalXpFromChallenges,
+      }),
+    );
   }, [user]);
 
   const username =
@@ -103,7 +114,7 @@ export default function ProfilePage() {
     level: profile?.level ?? 1,
     streak: profile?.streak ?? 0,
     lessonsCompleted: totalLessonsDone,
-    challengesSolved: 0,
+    challengesSolved: challengeStats.totalCompleted,
     pathsEnrolled: enrollments.length,
     joinedAt: user?.created_at ?? new Date().toISOString(),
   };

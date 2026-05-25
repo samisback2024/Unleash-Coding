@@ -24,8 +24,12 @@ import {
   PathDetailSkeleton,
 } from "@/components/ui";
 import { getLearningPathBySlug } from "@/services/learningPaths";
+import { getChallengesWithStatus } from "@/services/challenges";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import type { Module, LearningPath } from "@/types";
+import { useAuth } from "@/context/AuthContext";
+import { ChallengeCard } from "@/components/challenge";
+import { ChallengeProgress } from "@/components/challenge";
+import type { Module, LearningPath, ChallengeWithStatus } from "@/types";
 
 type TabId = "curriculum" | "challenges" | "projects" | "checklist";
 
@@ -133,7 +137,10 @@ export default function PathDetailPage() {
   const [path, setPath] = useState<LearningPath | null>(null);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [dbChallenges, setDbChallenges] = useState<ChallengeWithStatus[]>([]);
+  const [challengesLoaded, setChallengesLoaded] = useState(false);
 
+  const { user } = useAuth();
   const { enrollment, isEnrolled, enrolling, enroll } = useUserProgress(
     path?.id,
     path?.totalLessons ?? 0,
@@ -157,6 +164,16 @@ export default function PathDetailPage() {
       cancelled = true;
     };
   }, [slug]);
+
+  // Load DB challenges when tab becomes active
+  useEffect(() => {
+    if (activeTab !== "challenges" || !path?.id || !user || challengesLoaded)
+      return;
+    getChallengesWithStatus(path.id, user.id).then(({ data }) => {
+      setDbChallenges(data);
+      setChallengesLoaded(true);
+    });
+  }, [activeTab, path, user, challengesLoaded]);
 
   if (loading) return <PathDetailSkeleton />;
 
@@ -394,47 +411,41 @@ export default function PathDetailPage() {
 
         {/* Challenges */}
         {activeTab === "challenges" && (
-          <div className="space-y-4">
-            <p className="text-sm text-[#64748b]">
-              {path.challenges.length} challenges included
-            </p>
-            {path.challenges.map((c) => (
-              <div
-                key={c.id}
-                className="bg-[#1e2130] border border-[#2a2d3e] rounded-xl p-5 flex items-center justify-between gap-4"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="text-sm font-semibold text-[#f1f5f9]">
-                      {c.title}
-                    </h3>
-                    <Badge
-                      variant={
-                        c.difficulty === "beginner"
-                          ? "success"
-                          : c.difficulty === "intermediate"
-                            ? "warning"
-                            : "danger"
-                      }
-                    >
-                      {c.difficulty}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-[#64748b]">{c.description}</p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <div className="flex items-center gap-1 text-xs text-[#6c63ff] font-medium">
-                    <Zap className="w-3.5 h-3.5" />
-                    {c.xp} XP
-                  </div>
-                  <Link to={`/paths/${path.slug}/challenge/${c.id}`}>
-                    <Button size="sm" variant="secondary">
-                      Start
-                    </Button>
-                  </Link>
-                </div>
+          <div className="space-y-5">
+            {!challengesLoaded ? (
+              <div className="space-y-3 animate-pulse">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="h-24 bg-[#1e2130] rounded-xl" />
+                ))}
               </div>
-            ))}
+            ) : dbChallenges.length === 0 ? (
+              <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-2xl p-10 text-center">
+                <p className="text-sm text-[#64748b]">
+                  No challenges available yet for this path.
+                </p>
+              </div>
+            ) : (
+              <>
+                <ChallengeProgress
+                  total={dbChallenges.length}
+                  completed={dbChallenges.filter((c) => c.isCompleted).length}
+                  xpAvailable={dbChallenges.reduce((s, c) => s + c.xpReward, 0)}
+                  xpEarned={dbChallenges
+                    .filter((c) => c.isCompleted)
+                    .reduce((s, c) => s + c.xpReward, 0)}
+                  pathColor={path?.color ?? "#6c63ff"}
+                />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {dbChallenges.map((ch) => (
+                    <ChallengeCard
+                      key={ch.id}
+                      challenge={ch}
+                      slug={slug ?? ""}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         )}
 
