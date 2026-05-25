@@ -43,7 +43,9 @@ export default function PublicProfilePage() {
         setProfile(p);
         const likedSet = new Set(liked);
         setLikedIds(likedSet);
-        setProjects(projs.map((pr) => ({ ...pr, isLikedByMe: likedSet.has(pr.id) })));
+        setProjects(
+          projs.map((pr) => ({ ...pr, isLikedByMe: likedSet.has(pr.id) })),
+        );
       }
       setLoading(false);
     });
@@ -81,14 +83,19 @@ export default function PublicProfilePage() {
             <div className="h-32 bg-[#1e2130] rounded-xl animate-pulse" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-52 bg-[#1e2130] rounded-xl animate-pulse" />
+                <div
+                  key={i}
+                  className="h-52 bg-[#1e2130] rounded-xl animate-pulse"
+                />
               ))}
             </div>
           </div>
         ) : notFound ? (
           <div className="text-center py-20">
             <AlertCircle className="w-12 h-12 text-[#ef4444] mx-auto mb-3" />
-            <h2 className="text-xl font-semibold text-[#f1f5f9]">Profile not found</h2>
+            <h2 className="text-xl font-semibold text-[#f1f5f9]">
+              Profile not found
+            </h2>
             <p className="text-[#94a3b8] mt-2">
               This profile is private or doesn't exist.
             </p>
@@ -131,12 +138,17 @@ export default function PublicProfilePage() {
                   </div>
 
                   {profile.bio && (
-                    <p className="text-sm text-[#94a3b8] mt-1 mb-3">{profile.bio}</p>
+                    <p className="text-sm text-[#94a3b8] mt-1 mb-3">
+                      {profile.bio}
+                    </p>
                   )}
 
                   {/* Stats */}
                   <div className="flex items-center gap-4 text-sm text-[#64748b]">
-                    <span>{projects.length} public project{projects.length !== 1 ? "s" : ""}</span>
+                    <span>
+                      {projects.length} public project
+                      {projects.length !== 1 ? "s" : ""}
+                    </span>
                   </div>
 
                   {/* Links */}
@@ -183,7 +195,9 @@ export default function PublicProfilePage() {
             <section>
               <div className="flex items-center gap-2 mb-4">
                 <FolderOpen className="w-5 h-5 text-[#94a3b8]" />
-                <h2 className="text-lg font-semibold text-[#f1f5f9]">Public Projects</h2>
+                <h2 className="text-lg font-semibold text-[#f1f5f9]">
+                  Public Projects
+                </h2>
               </div>
 
               {projects.length === 0 ? (

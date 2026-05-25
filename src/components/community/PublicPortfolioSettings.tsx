@@ -48,7 +48,9 @@ export default function PublicPortfolioSettings({ currentUserId }: Props) {
   return (
     <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-xl p-6 space-y-5">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-[#f1f5f9]">Public Portfolio Settings</h3>
+        <h3 className="font-semibold text-[#f1f5f9]">
+          Public Portfolio Settings
+        </h3>
         <button
           onClick={() =>
             setForm((prev) => ({ ...prev, isPublic: !prev.isPublic }))
@@ -71,38 +73,54 @@ export default function PublicPortfolioSettings({ currentUserId }: Props) {
       <form onSubmit={handleSave} className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs text-[#94a3b8] mb-1">Display Name</label>
+            <label className="block text-xs text-[#94a3b8] mb-1">
+              Display Name
+            </label>
             <input
               value={form.displayName}
-              onChange={(e) => setForm((p) => ({ ...p, displayName: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, displayName: e.target.value }))
+              }
               placeholder="Your name"
               maxLength={60}
               className="w-full bg-[#252840] border border-[#2a2d3e] rounded-lg px-3 py-2 text-sm text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#6c63ff]/50"
             />
           </div>
           <div>
-            <label className="block text-xs text-[#94a3b8] mb-1">GitHub URL</label>
+            <label className="block text-xs text-[#94a3b8] mb-1">
+              GitHub URL
+            </label>
             <input
               value={form.githubUrl}
-              onChange={(e) => setForm((p) => ({ ...p, githubUrl: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, githubUrl: e.target.value }))
+              }
               placeholder="https://github.com/you"
               className="w-full bg-[#252840] border border-[#2a2d3e] rounded-lg px-3 py-2 text-sm text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#6c63ff]/50"
             />
           </div>
           <div>
-            <label className="block text-xs text-[#94a3b8] mb-1">LinkedIn URL</label>
+            <label className="block text-xs text-[#94a3b8] mb-1">
+              LinkedIn URL
+            </label>
             <input
               value={form.linkedinUrl}
-              onChange={(e) => setForm((p) => ({ ...p, linkedinUrl: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, linkedinUrl: e.target.value }))
+              }
               placeholder="https://linkedin.com/in/you"
               className="w-full bg-[#252840] border border-[#2a2d3e] rounded-lg px-3 py-2 text-sm text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#6c63ff]/50"
             />
           </div>
           <div>
-            <label className="block text-xs text-[#94a3b8] mb-1">Portfolio URL</label>
+            <label className="block text-xs text-[#94a3b8] mb-1">
+              Portfolio URL
+            </label>
             <input
               value={form.portfolioUrl}
-              onChange={(e) => setForm((p) => ({ ...p, portfolioUrl: e.target.value }))}
+              onChange={(e) =>
+                setForm((p) => ({ ...p, portfolioUrl: e.target.value }))
+              }
               placeholder="https://yoursite.dev"
               className="w-full bg-[#252840] border border-[#2a2d3e] rounded-lg px-3 py-2 text-sm text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#6c63ff]/50"
             />
@@ -119,7 +137,9 @@ export default function PublicPortfolioSettings({ currentUserId }: Props) {
             maxLength={300}
             className="w-full bg-[#252840] border border-[#2a2d3e] rounded-lg px-3 py-2 text-sm text-[#f1f5f9] placeholder-[#64748b] focus:outline-none focus:border-[#6c63ff]/50 resize-none"
           />
-          <p className="text-xs text-[#64748b] mt-1 text-right">{form.bio.length}/300</p>
+          <p className="text-xs text-[#64748b] mt-1 text-right">
+            {form.bio.length}/300
+          </p>
         </div>
 
         <button

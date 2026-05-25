@@ -55,7 +55,10 @@ export default function ReportButton({ submissionId, currentUserId }: Props) {
                 <AlertTriangle className="w-5 h-5 text-[#f59e0b]" />
                 <h3 className="font-semibold text-[#f1f5f9]">Report Project</h3>
               </div>
-              <button onClick={() => setOpen(false)} className="text-[#64748b] hover:text-[#f1f5f9]">
+              <button
+                onClick={() => setOpen(false)}
+                className="text-[#64748b] hover:text-[#f1f5f9]"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -66,10 +69,15 @@ export default function ReportButton({ submissionId, currentUserId }: Props) {
               </p>
             ) : (
               <>
-                <p className="text-sm text-[#94a3b8]">Select a reason for reporting:</p>
+                <p className="text-sm text-[#94a3b8]">
+                  Select a reason for reporting:
+                </p>
                 <div className="space-y-2">
                   {REASONS.map((r) => (
-                    <label key={r} className="flex items-center gap-2 cursor-pointer">
+                    <label
+                      key={r}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
                       <input
                         type="radio"
                         name="reason"

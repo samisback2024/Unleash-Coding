@@ -49,6 +49,7 @@ export async function getUserProfile(
       streak: data.streak ?? 0,
       joinedAt: data.created_at,
       bio: data.bio ?? undefined,
+      role: data.role ?? "user",
     },
     error: null,
   };

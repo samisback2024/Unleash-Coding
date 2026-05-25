@@ -13,14 +13,21 @@ function timeAgo(isoDate: string): string {
   if (days < 30) return `${days}d ago`;
   return new Date(isoDate).toLocaleDateString();
 }
-import { getProjectComments, addProjectComment, deleteProjectComment } from "@/services/community";
+import {
+  getProjectComments,
+  addProjectComment,
+  deleteProjectComment,
+} from "@/services/community";
 
 interface Props {
   submissionId: string;
   currentUserId?: string;
 }
 
-export default function ProjectComments({ submissionId, currentUserId }: Props) {
+export default function ProjectComments({
+  submissionId,
+  currentUserId,
+}: Props) {
   const [comments, setComments] = useState<ProjectComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState("");
@@ -82,7 +89,10 @@ export default function ProjectComments({ submissionId, currentUserId }: Props) 
       {loading ? (
         <div className="space-y-2">
           {[1, 2].map((i) => (
-            <div key={i} className="h-14 bg-[#252840] rounded-lg animate-pulse" />
+            <div
+              key={i}
+              className="h-14 bg-[#252840] rounded-lg animate-pulse"
+            />
           ))}
         </div>
       ) : comments.length === 0 ? (
@@ -114,12 +124,16 @@ export default function ProjectComments({ submissionId, currentUserId }: Props) 
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2">
-                    <span className="text-xs font-semibold text-[#f1f5f9]">{c.displayName}</span>
+                    <span className="text-xs font-semibold text-[#f1f5f9]">
+                      {c.displayName}
+                    </span>
                     <span className="text-xs text-[#64748b]">
                       {timeAgo(c.createdAt)}
                     </span>
                   </div>
-                  <p className="text-sm text-[#94a3b8] mt-0.5 break-words">{c.comment}</p>
+                  <p className="text-sm text-[#94a3b8] mt-0.5 break-words">
+                    {c.comment}
+                  </p>
                 </div>
                 {currentUserId === c.userId && (
                   <button

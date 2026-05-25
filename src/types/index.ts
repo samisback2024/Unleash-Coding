@@ -219,6 +219,7 @@ export interface UserProfile {
   streak: number;
   joinedAt: string;
   bio?: string;
+  role: string;
 }
 
 export interface UserProgress {
@@ -502,4 +503,50 @@ export interface ProjectComment {
   updatedAt: string;
   displayName: string;
   avatarUrl: string;
+}
+
+// ─── Admin types ──────────────────────────────────────────────────────────────
+
+export interface AdminStats {
+  totalPaths: number;
+  totalLessons: number;
+  totalChallenges: number;
+  totalProjects: number;
+  totalUsers: number;
+  totalSubmissions: number;
+  pendingReports: number;
+}
+
+export interface AdminUser {
+  id: string;
+  username: string;
+  fullName: string;
+  role: string;
+  xp: number;
+  level: number;
+  streak: number;
+  createdAt: string;
+}
+
+export interface AdminReport {
+  id: string;
+  reporterId: string;
+  projectSubmissionId: string;
+  reason: string;
+  status: string;
+  createdAt: string;
+  projectTitle: string;
+}
+
+export interface AdminShowcaseSubmission {
+  id: string;
+  userId: string;
+  projectId: string;
+  githubUrl: string;
+  status: string;
+  isPublic: boolean;
+  isFeatured: boolean;
+  submittedAt: string;
+  projectTitle: string;
+  pathTitle: string;
 }

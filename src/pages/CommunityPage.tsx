@@ -67,7 +67,9 @@ export default function CommunityPage() {
       setLoading(true);
       const results = await searchProjects(search, pathFilter);
       const likedSet = likedIds;
-      setProjects(results.map((p) => ({ ...p, isLikedByMe: likedSet.has(p.id) })));
+      setProjects(
+        results.map((p) => ({ ...p, isLikedByMe: likedSet.has(p.id) })),
+      );
       setLoading(false);
     }, 300);
     return () => clearTimeout(t);
@@ -84,7 +86,6 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen bg-[#0f1117]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div>
@@ -124,7 +125,10 @@ export default function CommunityPage() {
         {/* Featured — only when not filtering */}
         {!isSearching && !loading && featured.length > 0 && (
           <FeaturedProjectsSection
-            projects={featured.map((p) => ({ ...p, isLikedByMe: likedIds.has(p.id) }))}
+            projects={featured.map((p) => ({
+              ...p,
+              isLikedByMe: likedIds.has(p.id),
+            }))}
             currentUserId={user?.id}
           />
         )}

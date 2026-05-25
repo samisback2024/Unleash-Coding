@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AdminLayout } from "@/components/admin";
 
 // Pages
 import LandingPage from "@/pages/LandingPage";
@@ -20,6 +21,16 @@ import CommunityPage from "@/pages/CommunityPage";
 import PublicProfilePage from "@/pages/PublicProfilePage";
 import ProjectShowcasePage from "@/pages/ProjectShowcasePage";
 
+// Admin pages
+import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
+import AdminPathsPage from "@/pages/admin/AdminPathsPage";
+import AdminModulesPage from "@/pages/admin/AdminModulesPage";
+import AdminLessonsPage from "@/pages/admin/AdminLessonsPage";
+import AdminChallengesPage from "@/pages/admin/AdminChallengesPage";
+import AdminProjectsPage from "@/pages/admin/AdminProjectsPage";
+import AdminReportsPage from "@/pages/admin/AdminReportsPage";
+import AdminUsersPage from "@/pages/admin/AdminUsersPage";
+
 /** Redirect authenticated users away from auth pages */
 function PublicRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -33,6 +44,24 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
+
+/** Admin-only route guard */
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user, profile, loading } = useAuth();
+  if (loading) return (
+    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+  if (!user) return <Navigate to="/login" replace />;
+  if (!profile) return (
+    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+  if (profile.role !== "admin") return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 
@@ -85,12 +114,33 @@ function AppRoutes() {
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/community" element={<CommunityPage />} />
         <Route path="/u/:userId" element={<PublicProfilePage />} />
-        <Route path="/showcase/:submissionId" element={<ProjectShowcasePage />} />
+        <Route
+          path="/showcase/:submissionId"
+          element={<ProjectShowcasePage />}
+        />
         <Route path="/profile" element={<ProfilePage />} />
       </Route>
 
       {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
+
+      {/* Admin — separate layout */}
+      <Route
+        element={
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        }
+      >
+        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route path="/admin/paths" element={<AdminPathsPage />} />
+        <Route path="/admin/modules" element={<AdminModulesPage />} />
+        <Route path="/admin/lessons" element={<AdminLessonsPage />} />
+        <Route path="/admin/challenges" element={<AdminChallengesPage />} />
+        <Route path="/admin/projects" element={<AdminProjectsPage />} />
+        <Route path="/admin/reports" element={<AdminReportsPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
+      </Route>
     </Routes>
   );
 }

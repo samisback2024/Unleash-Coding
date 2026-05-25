@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, ExternalLink, Star, GitBranch } from "lucide-react";
+import {
+  Heart,
+  MessageCircle,
+  ExternalLink,
+  Star,
+  GitBranch,
+} from "lucide-react";
 import { clsx } from "clsx";
 import type { CommunityProject } from "@/types";
 import { likeProject, unlikeProject } from "@/services/community";
@@ -24,12 +30,17 @@ const PATH_COLORS: Record<string, string> = {
 
 function getPathColor(category: string): string {
   for (const key of Object.keys(PATH_COLORS)) {
-    if (category?.toLowerCase().includes(key.toLowerCase())) return PATH_COLORS[key];
+    if (category?.toLowerCase().includes(key.toLowerCase()))
+      return PATH_COLORS[key];
   }
   return "text-[#94a3b8] bg-[#94a3b8]/10 border-[#94a3b8]/20";
 }
 
-export default function ProjectShowcaseCard({ project, currentUserId, onLikeToggle }: Props) {
+export default function ProjectShowcaseCard({
+  project,
+  currentUserId,
+  onLikeToggle,
+}: Props) {
   const [liked, setLiked] = useState(project.isLikedByMe ?? false);
   const [likeCount, setLikeCount] = useState(project.likeCount);
   const [loading, setLoading] = useState(false);
@@ -62,7 +73,10 @@ export default function ProjectShowcaseCard({ project, currentUserId, onLikeTogg
     <div className="bg-[#1e2130] border border-[#2a2d3e] rounded-xl p-5 flex flex-col gap-4 hover:border-[#6c63ff]/40 transition-colors">
       {/* Header: author */}
       <div className="flex items-start justify-between gap-3">
-        <Link to={`/u/${project.userId}`} className="flex items-center gap-2.5 min-w-0 group">
+        <Link
+          to={`/u/${project.userId}`}
+          className="flex items-center gap-2.5 min-w-0 group"
+        >
           {project.avatarUrl ? (
             <img
               src={project.avatarUrl}
@@ -79,7 +93,12 @@ export default function ProjectShowcaseCard({ project, currentUserId, onLikeTogg
           </span>
         </Link>
 
-        <span className={clsx("text-xs px-2 py-0.5 rounded-full border font-medium shrink-0", getPathColor(project.pathCategory))}>
+        <span
+          className={clsx(
+            "text-xs px-2 py-0.5 rounded-full border font-medium shrink-0",
+            getPathColor(project.pathCategory),
+          )}
+        >
           {project.pathCategory || project.pathTitle}
         </span>
       </div>
@@ -92,7 +111,9 @@ export default function ProjectShowcaseCard({ project, currentUserId, onLikeTogg
           </h3>
         </Link>
         {project.notes && (
-          <p className="mt-1 text-sm text-[#64748b] line-clamp-2">{project.notes}</p>
+          <p className="mt-1 text-sm text-[#64748b] line-clamp-2">
+            {project.notes}
+          </p>
         )}
       </div>
 
@@ -157,9 +178,7 @@ export default function ProjectShowcaseCard({ project, currentUserId, onLikeTogg
             disabled={!currentUserId || loading}
             className={clsx(
               "flex items-center gap-1 text-xs transition-colors",
-              liked
-                ? "text-[#ef4444]"
-                : "text-[#94a3b8] hover:text-[#ef4444]",
+              liked ? "text-[#ef4444]" : "text-[#94a3b8] hover:text-[#ef4444]",
               (!currentUserId || loading) && "opacity-50 cursor-not-allowed",
             )}
           >
@@ -167,7 +186,10 @@ export default function ProjectShowcaseCard({ project, currentUserId, onLikeTogg
             {likeCount}
           </button>
           {project.isFeatured && (
-            <Star className="w-3.5 h-3.5 text-[#f59e0b] fill-current" aria-label="Featured" />
+            <Star
+              className="w-3.5 h-3.5 text-[#f59e0b] fill-current"
+              aria-label="Featured"
+            />
           )}
         </div>
       </div>

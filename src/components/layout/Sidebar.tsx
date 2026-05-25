@@ -11,6 +11,7 @@ import {
   Menu,
   X,
   Users,
+  ShieldCheck,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
@@ -28,7 +29,7 @@ const navItems = [
 ];
 
 export function Sidebar() {
-  const { signOut } = useAuth();
+  const { signOut, profile } = useAuth();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -75,6 +76,23 @@ export function Sidebar() {
 
       {/* Sign out */}
       <div className="px-3 pb-4 border-t border-[#2a2d3e] pt-3">
+        {profile?.role === "admin" && (
+          <NavLink
+            to="/admin"
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) =>
+              clsx(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 mb-1",
+                isActive
+                  ? "bg-[#6c63ff]/20 text-[#6c63ff] border border-[#6c63ff]/30"
+                  : "text-[#94a3b8] hover:bg-[#252840] hover:text-[#f1f5f9]",
+              )
+            }
+          >
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            Admin Panel
+          </NavLink>
+        )}
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-[#94a3b8] hover:bg-[#252840] hover:text-[#ef4444] transition-all duration-150"

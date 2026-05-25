@@ -415,7 +415,9 @@ export default function DashboardPage() {
           <Users className="w-5 h-5 text-[#6c63ff]" />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-semibold text-[#f1f5f9]">Community Showcase</h3>
+          <h3 className="text-sm font-semibold text-[#f1f5f9]">
+            Community Showcase
+          </h3>
           <p className="text-xs text-[#64748b] mt-0.5">
             Share your projects and discover what other learners are building
           </p>
