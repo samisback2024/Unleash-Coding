@@ -8,7 +8,6 @@ import {
   LogOut,
   Trophy,
   Briefcase,
-  Zap,
   Menu,
   X,
 } from "lucide-react";
@@ -40,9 +39,11 @@ export function Sidebar() {
     <>
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-[#2a2d3e]">
-        <div className="w-8 h-8 rounded-lg bg-[#6c63ff] flex items-center justify-center shrink-0">
-          <Zap className="w-4 h-4 text-white" />
-        </div>
+        <img
+          src="/favicon.svg"
+          alt="Unleash Coding"
+          className="w-8 h-8 shrink-0"
+        />
         <span className="text-lg font-bold text-[#f1f5f9] tracking-tight">
           Unleash Coding
         </span>

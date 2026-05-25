@@ -54,9 +54,7 @@ export default function LandingPage() {
       <header className="border-b border-[#2a2d3e] sticky top-0 z-50 bg-[#0f1117]/90 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#6c63ff] flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
-            </div>
+            <img src="/favicon.svg" alt="Unleash Coding" className="w-8 h-8" />
             <span className="text-lg font-bold tracking-tight">
               Unleash Coding
             </span>
