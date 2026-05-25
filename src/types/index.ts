@@ -18,6 +18,60 @@ export interface Lesson {
   completed?: boolean;
 }
 
+// ─── Lesson engine types ──────────────────────────────────────────────────────
+
+export interface LessonWithModule {
+  id: string;
+  moduleId: string;
+  moduleTitle: string;
+  moduleLevel: string;
+  moduleOrderIndex: number;
+  title: string;
+  content: string;
+  type: string;
+  duration: string;
+  orderIndex: number;
+  estimatedMinutes: number;
+}
+
+export interface LessonNavItem {
+  id: string;
+  title: string;
+}
+
+export interface ModuleLessonItem {
+  id: string;
+  title: string;
+  duration: string;
+  orderIndex: number;
+  type: string;
+}
+
+export interface ModuleWithLessons {
+  id: string;
+  title: string;
+  level: string;
+  orderIndex: number;
+  lessons: ModuleLessonItem[];
+}
+
+export interface LessonQuizItem {
+  id: string;
+  lessonId: string;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+  orderIndex: number;
+}
+
+export interface LessonNoteData {
+  userId: string;
+  lessonId: string;
+  note: string;
+  updatedAt: string;
+}
+
 export interface Challenge {
   id: string;
   title: string;
