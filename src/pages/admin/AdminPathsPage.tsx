@@ -44,21 +44,42 @@ function labelClass() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function columns(onEdit: (row: Record<string, any>) => void, onDelete: (row: Record<string, any>) => void) {
+function columns(
+  onEdit: (row: Record<string, any>) => void,
+  onDelete: (row: Record<string, any>) => void,
+) {
   return [
-    { key: "title", label: "Title", render: (r: Record<string, any>) => (
-      <span className="font-medium text-[#f1f5f9]">{r.title}</span>
-    )},
+    {
+      key: "title",
+      label: "Title",
+      render: (r: Record<string, any>) => (
+        <span className="font-medium text-[#f1f5f9]">{r.title}</span>
+      ),
+    },
     { key: "slug", label: "Slug" },
     { key: "category", label: "Category" },
-    { key: "difficulty", label: "Difficulty", render: (r: Record<string, any>) => (
-      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-        r.difficulty === "beginner" ? "bg-green-500/20 text-green-400" :
-        r.difficulty === "intermediate" ? "bg-yellow-500/20 text-yellow-400" :
-        "bg-red-500/20 text-red-400"
-      }`}>{r.difficulty}</span>
-    )},
-    { key: "enrolled", label: "Enrolled", render: (r: Record<string, any>) => String(r.enrolled ?? 0) },
+    {
+      key: "difficulty",
+      label: "Difficulty",
+      render: (r: Record<string, any>) => (
+        <span
+          className={`px-2 py-0.5 rounded text-xs font-medium ${
+            r.difficulty === "beginner"
+              ? "bg-green-500/20 text-green-400"
+              : r.difficulty === "intermediate"
+                ? "bg-yellow-500/20 text-yellow-400"
+                : "bg-red-500/20 text-red-400"
+          }`}
+        >
+          {r.difficulty}
+        </span>
+      ),
+    },
+    {
+      key: "enrolled",
+      label: "Enrolled",
+      render: (r: Record<string, any>) => String(r.enrolled ?? 0),
+    },
     {
       key: "actions",
       label: "",
@@ -94,7 +115,10 @@ export default function AdminPathsPage() {
   const [saving, setSaving] = useState(false);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deleting, setDeleting] = useState<Record<string, any> | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   function showToast(message: string, type: "success" | "error" = "success") {
     setToast({ message, type });
@@ -107,7 +131,9 @@ export default function AdminPathsPage() {
     setLoading(false);
   }
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+  }, []);
 
   function openCreate() {
     setEditingId(null);
@@ -141,7 +167,10 @@ export default function AdminPathsPage() {
     setSaving(true);
     const payload = {
       ...form,
-      tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      tags: form.tags
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
     };
     const result = editingId
       ? await updateLearningPath(editingId, payload)
@@ -169,21 +198,32 @@ export default function AdminPathsPage() {
   }
 
   function field(key: keyof PathForm) {
-    return (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
-      setForm((f) => ({ ...f, [key]: e.target.value }));
+    return (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >,
+    ) => setForm((f) => ({ ...f, [key]: e.target.value }));
   }
 
   return (
     <div className="p-6 space-y-5">
       {toast && (
-        <div className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-sm font-medium shadow-xl ${
-          toast.type === "success" ? "bg-green-600 text-white" : "bg-red-600 text-white"
-        }`}>{toast.message}</div>
+        <div
+          className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-lg text-sm font-medium shadow-xl ${
+            toast.type === "success"
+              ? "bg-green-600 text-white"
+              : "bg-red-600 text-white"
+          }`}
+        >
+          {toast.message}
+        </div>
       )}
 
       <div>
         <h1 className="text-xl font-bold text-[#f1f5f9]">Learning Paths</h1>
-        <p className="text-sm text-[#64748b] mt-1">Manage all career learning paths</p>
+        <p className="text-sm text-[#64748b] mt-1">
+          Manage all career learning paths
+        </p>
       </div>
 
       <AdminTable
@@ -211,54 +251,107 @@ export default function AdminPathsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass()}>Title *</label>
-            <input className={fieldClass()} value={form.title} onChange={field("title")} placeholder="Python Career Path" />
+            <input
+              className={fieldClass()}
+              value={form.title}
+              onChange={field("title")}
+              placeholder="Python Career Path"
+            />
           </div>
           <div>
             <label className={labelClass()}>Slug *</label>
-            <input className={fieldClass()} value={form.slug} onChange={field("slug")} placeholder="python-career-path" />
+            <input
+              className={fieldClass()}
+              value={form.slug}
+              onChange={field("slug")}
+              placeholder="python-career-path"
+            />
           </div>
         </div>
         <div>
           <label className={labelClass()}>Description</label>
-          <textarea className={fieldClass()} rows={3} value={form.description} onChange={field("description")} placeholder="A comprehensive path to…" />
+          <textarea
+            className={fieldClass()}
+            rows={3}
+            value={form.description}
+            onChange={field("description")}
+            placeholder="A comprehensive path to…"
+          />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass()}>Category</label>
-            <select className={fieldClass()} value={form.category} onChange={field("category")}>
-              {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+            <select
+              className={fieldClass()}
+              value={form.category}
+              onChange={field("category")}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c}>{c}</option>
+              ))}
             </select>
           </div>
           <div>
             <label className={labelClass()}>Difficulty</label>
-            <select className={fieldClass()} value={form.difficulty} onChange={field("difficulty")}>
-              {DIFFICULTIES.map((d) => <option key={d}>{d}</option>)}
+            <select
+              className={fieldClass()}
+              value={form.difficulty}
+              onChange={field("difficulty")}
+            >
+              {DIFFICULTIES.map((d) => (
+                <option key={d}>{d}</option>
+              ))}
             </select>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass()}>Estimated Timeline</label>
-            <input className={fieldClass()} value={form.estimated_timeline} onChange={field("estimated_timeline")} placeholder="3 months" />
+            <input
+              className={fieldClass()}
+              value={form.estimated_timeline}
+              onChange={field("estimated_timeline")}
+              placeholder="3 months"
+            />
           </div>
           <div>
             <label className={labelClass()}>Weekly Hours</label>
-            <input className={fieldClass()} value={form.weekly_hours} onChange={field("weekly_hours")} placeholder="10-15 hours/week" />
+            <input
+              className={fieldClass()}
+              value={form.weekly_hours}
+              onChange={field("weekly_hours")}
+              placeholder="10-15 hours/week"
+            />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className={labelClass()}>Icon (emoji)</label>
-            <input className={fieldClass()} value={form.icon} onChange={field("icon")} placeholder="🐍" />
+            <input
+              className={fieldClass()}
+              value={form.icon}
+              onChange={field("icon")}
+              placeholder="🐍"
+            />
           </div>
           <div>
             <label className={labelClass()}>Color (hex)</label>
-            <input className={fieldClass()} value={form.color} onChange={field("color")} placeholder="#6c63ff" />
+            <input
+              className={fieldClass()}
+              value={form.color}
+              onChange={field("color")}
+              placeholder="#6c63ff"
+            />
           </div>
         </div>
         <div>
           <label className={labelClass()}>Tags (comma-separated)</label>
-          <input className={fieldClass()} value={form.tags} onChange={field("tags")} placeholder="python, automation, data science" />
+          <input
+            className={fieldClass()}
+            value={form.tags}
+            onChange={field("tags")}
+            placeholder="python, automation, data science"
+          />
         </div>
       </AdminModal>
 
@@ -273,9 +366,11 @@ export default function AdminPathsPage() {
       >
         <p className="text-sm text-[#94a3b8]">
           Are you sure you want to delete{" "}
-          <span className="font-semibold text-[#f1f5f9]">{deleting?.title}</span>?
-          This will also delete all modules, lessons, challenges, and projects under it.
-          This action cannot be undone.
+          <span className="font-semibold text-[#f1f5f9]">
+            {deleting?.title}
+          </span>
+          ? This will also delete all modules, lessons, challenges, and projects
+          under it. This action cannot be undone.
         </p>
       </AdminModal>
     </div>

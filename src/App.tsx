@@ -1,7 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ToastProvider } from "@/context/ToastContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { AdminLayout } from "@/components/admin";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { FeedbackButton } from "@/components/ui/FeedbackButton";
 
 // Pages
 import LandingPage from "@/pages/LandingPage";
@@ -20,6 +23,17 @@ import LeaderboardPage from "@/pages/LeaderboardPage";
 import CommunityPage from "@/pages/CommunityPage";
 import PublicProfilePage from "@/pages/PublicProfilePage";
 import ProjectShowcasePage from "@/pages/ProjectShowcasePage";
+import NotFoundPage from "@/pages/NotFoundPage";
+import UnauthorizedPage from "@/pages/UnauthorizedPage";
+import WaitlistPage from "@/pages/WaitlistPage";
+import BetaInvitePage from "@/pages/BetaInvitePage";
+import BetaOnboardingPage from "@/pages/BetaOnboardingPage";
+import PlaygroundPage from "@/pages/PlaygroundPage";
+import DSAVisualizerPage from "@/pages/DSAVisualizerPage";
+import SystemDesignPage from "@/pages/SystemDesignPage";
+import InterviewPrepPage from "@/pages/InterviewPrepPage";
+import ResumeBuilderPage from "@/pages/ResumeBuilderPage";
+import StudyPlannerPage from "@/pages/StudyPlannerPage";
 
 // Admin pages
 import AdminDashboardPage from "@/pages/admin/AdminDashboardPage";
@@ -30,6 +44,9 @@ import AdminChallengesPage from "@/pages/admin/AdminChallengesPage";
 import AdminProjectsPage from "@/pages/admin/AdminProjectsPage";
 import AdminReportsPage from "@/pages/admin/AdminReportsPage";
 import AdminUsersPage from "@/pages/admin/AdminUsersPage";
+import AdminBetaDashboardPage from "@/pages/admin/AdminBetaDashboardPage";
+import AdminFeedbackDashboardPage from "@/pages/admin/AdminFeedbackDashboardPage";
+import AdminLaunchChecklistPage from "@/pages/admin/AdminLaunchChecklistPage";
 
 /** Redirect authenticated users away from auth pages */
 function PublicRoute({ children }: { children: React.ReactNode }) {
@@ -50,18 +67,20 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 /** Admin-only route guard */
 function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, profile, loading } = useAuth();
-  if (loading) return (
-    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   if (!user) return <Navigate to="/login" replace />;
-  if (!profile) return (
-    <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
-      <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
-  if (profile.role !== "admin") return <Navigate to="/dashboard" replace />;
+  if (!profile)
+    return (
+      <div className="min-h-screen bg-[#0f1117] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  if (profile.role !== "admin") return <Navigate to="/unauthorized" replace />;
   return <>{children}</>;
 }
 
@@ -70,6 +89,8 @@ function AppRoutes() {
     <Routes>
       {/* Public */}
       <Route path="/" element={<LandingPage />} />
+      <Route path="/waitlist" element={<WaitlistPage />} />
+      <Route path="/invite/:code" element={<BetaInvitePage />} />
       <Route
         path="/login"
         element={
@@ -119,10 +140,18 @@ function AppRoutes() {
           element={<ProjectShowcasePage />}
         />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/onboarding" element={<BetaOnboardingPage />} />
+        <Route path="/playground" element={<PlaygroundPage />} />
+        <Route path="/dsa" element={<DSAVisualizerPage />} />
+        <Route path="/system-design" element={<SystemDesignPage />} />
+        <Route path="/interview-prep" element={<InterviewPrepPage />} />
+        <Route path="/resume-builder" element={<ResumeBuilderPage />} />
+        <Route path="/study-planner" element={<StudyPlannerPage />} />
       </Route>
 
-      {/* Fallback */}
-      <Route path="*" element={<Navigate to="/" replace />} />
+      {/* Utility pages */}
+      <Route path="/unauthorized" element={<UnauthorizedPage />} />
+      <Route path="*" element={<NotFoundPage />} />
 
       {/* Admin — separate layout */}
       <Route
@@ -140,6 +169,15 @@ function AppRoutes() {
         <Route path="/admin/projects" element={<AdminProjectsPage />} />
         <Route path="/admin/reports" element={<AdminReportsPage />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/beta" element={<AdminBetaDashboardPage />} />
+        <Route
+          path="/admin/feedback"
+          element={<AdminFeedbackDashboardPage />}
+        />
+        <Route
+          path="/admin/launch-checklist"
+          element={<AdminLaunchChecklistPage />}
+        />
       </Route>
     </Routes>
   );
@@ -149,7 +187,12 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <ToastProvider>
+          <ErrorBoundary>
+            <AppRoutes />
+            <FeedbackButton />
+          </ErrorBoundary>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );

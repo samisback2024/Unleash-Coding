@@ -24,11 +24,7 @@ export default function AdminModal({
   if (!isOpen) return null;
 
   const sizeClass =
-    size === "xl"
-      ? "max-w-4xl"
-      : size === "lg"
-        ? "max-w-2xl"
-        : "max-w-md";
+    size === "xl" ? "max-w-4xl" : size === "lg" ? "max-w-2xl" : "max-w-md";
 
   return (
     <div

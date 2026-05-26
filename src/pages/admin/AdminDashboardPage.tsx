@@ -16,11 +16,21 @@ import { AdminStatsCard } from "@/components/admin";
 import type { AdminStats } from "@/types";
 
 const quickLinks = [
-  { to: "/admin/paths", label: "Learning Paths", icon: BookOpen, color: "#6c63ff" },
+  {
+    to: "/admin/paths",
+    label: "Learning Paths",
+    icon: BookOpen,
+    color: "#6c63ff",
+  },
   { to: "/admin/modules", label: "Modules", icon: Layers, color: "#10b981" },
   { to: "/admin/lessons", label: "Lessons", icon: FileText, color: "#3b82f6" },
   { to: "/admin/challenges", label: "Challenges", icon: Zap, color: "#f59e0b" },
-  { to: "/admin/projects", label: "Projects", icon: FolderOpen, color: "#8b5cf6" },
+  {
+    to: "/admin/projects",
+    label: "Projects",
+    icon: FolderOpen,
+    color: "#8b5cf6",
+  },
   { to: "/admin/reports", label: "Reports", icon: Flag, color: "#ef4444" },
   { to: "/admin/users", label: "Users", icon: Users, color: "#06b6d4" },
 ];

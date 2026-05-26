@@ -74,10 +74,7 @@ export async function updateUserRole(
   userId: string,
   role: "user" | "admin",
 ): Promise<{ error: string | null }> {
-  const { error } = await db
-    .from("profiles")
-    .update({ role })
-    .eq("id", userId);
+  const { error } = await db.from("profiles").update({ role }).eq("id", userId);
   return { error: error?.message ?? null };
 }
 
@@ -105,10 +102,7 @@ export async function updateLearningPath(
   id: string,
   data: Record<string, unknown>,
 ): Promise<{ error: string | null }> {
-  const { error } = await db
-    .from("learning_paths")
-    .update(data)
-    .eq("id", id);
+  const { error } = await db.from("learning_paths").update(data).eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -392,8 +386,7 @@ export async function getProjectReports(): Promise<AdminReport[]> {
     reason: r.reason,
     status: r.status ?? "pending",
     createdAt: r.created_at,
-    projectTitle:
-      r.project_submissions?.projects?.title ?? "Unknown Project",
+    projectTitle: r.project_submissions?.projects?.title ?? "Unknown Project",
   }));
 }
 

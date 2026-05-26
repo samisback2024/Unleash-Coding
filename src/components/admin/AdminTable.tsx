@@ -37,17 +37,20 @@ export default function AdminTable({
   rowActions,
   headerExtra,
 }: AdminTableProps) {
-  const filtered = data.filter((row) =>
-    columns.some((col) => {
-      const val = row[col.key];
-      return typeof val === "string" &&
-        val.toLowerCase().includes(search.toLowerCase());
-    }) ||
-    // also search pathTitle / moduleTitle helper fields
-    (typeof row.pathTitle === "string" &&
-      row.pathTitle.toLowerCase().includes(search.toLowerCase())) ||
-    (typeof row.moduleTitle === "string" &&
-      row.moduleTitle.toLowerCase().includes(search.toLowerCase())),
+  const filtered = data.filter(
+    (row) =>
+      columns.some((col) => {
+        const val = row[col.key];
+        return (
+          typeof val === "string" &&
+          val.toLowerCase().includes(search.toLowerCase())
+        );
+      }) ||
+      // also search pathTitle / moduleTitle helper fields
+      (typeof row.pathTitle === "string" &&
+        row.pathTitle.toLowerCase().includes(search.toLowerCase())) ||
+      (typeof row.moduleTitle === "string" &&
+        row.moduleTitle.toLowerCase().includes(search.toLowerCase())),
   );
 
   return (

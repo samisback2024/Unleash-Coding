@@ -11,6 +11,9 @@ import {
   ArrowLeft,
   LogOut,
   ShieldCheck,
+  Rocket,
+  MessageSquare,
+  ClipboardList,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "@/context/AuthContext";
@@ -24,6 +27,13 @@ const adminNavItems = [
   { to: "/admin/projects", icon: FolderOpen, label: "Projects" },
   { to: "/admin/reports", icon: Flag, label: "Reports" },
   { to: "/admin/users", icon: Users, label: "Users" },
+  { to: "/admin/beta", icon: Rocket, label: "Beta" },
+  { to: "/admin/feedback", icon: MessageSquare, label: "Feedback" },
+  {
+    to: "/admin/launch-checklist",
+    icon: ClipboardList,
+    label: "Launch Checklist",
+  },
 ];
 
 export default function AdminLayout() {
@@ -48,9 +58,7 @@ export default function AdminLayout() {
             <p className="text-xs font-bold text-[#f1f5f9] leading-none">
               Admin Panel
             </p>
-            <p className="text-[10px] text-[#64748b] mt-0.5">
-              Unleash Coding
-            </p>
+            <p className="text-[10px] text-[#64748b] mt-0.5">Unleash Coding</p>
           </div>
         </div>
 

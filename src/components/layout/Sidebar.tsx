@@ -12,6 +12,11 @@ import {
   X,
   Users,
   ShieldCheck,
+  BarChart2,
+  Network,
+  ClipboardCheck,
+  FileText,
+  Calendar,
 } from "lucide-react";
 import { clsx } from "clsx";
 import { useState } from "react";
@@ -26,6 +31,12 @@ const navItems = [
   { to: "/community", icon: Users, label: "Community" },
   { to: "/leaderboard", icon: Trophy, label: "Leaderboard" },
   { to: "/profile", icon: User, label: "Profile" },
+  { to: "/playground", icon: Code2, label: "Playground" },
+  { to: "/dsa", icon: BarChart2, label: "DSA Visualizer" },
+  { to: "/system-design", icon: Network, label: "System Design" },
+  { to: "/interview-prep", icon: ClipboardCheck, label: "Interview Prep" },
+  { to: "/resume-builder", icon: FileText, label: "Resume Builder" },
+  { to: "/study-planner", icon: Calendar, label: "Study Planner" },
 ];
 
 export function Sidebar() {
