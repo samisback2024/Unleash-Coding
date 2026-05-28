@@ -10,7 +10,9 @@ A free, full-stack coding career platform — structured learning paths, real-wo
 
 ### Learning Paths
 
-- 8 career paths: Python, JavaScript, Frontend, Backend, Full-Stack, AI/ML, DevOps, Cybersecurity
+- **30 career paths** across three tiers:
+  - *Original 18*: Python, JavaScript, TypeScript, Frontend, React, Backend, Full-Stack, Node.js, SQL Databases, DSA, Java, C++, DevOps, Cloud Architecture, Cybersecurity, AI/ML, Mobile (React Native), Open Source
+  - *New 12 (migration 011)*: TypeScript Developer, Git & GitHub, Linux & Terminal, API Engineering, Software Architecture, Testing & QA, Docker & Kubernetes, Networking, Operating Systems, Distributed Systems, Performance Optimization, Open Source Contribution
 - Beginner → Intermediate → Advanced modules loaded from Supabase
 - Enroll in any path and track progress independently with real progress bars
 
@@ -25,6 +27,7 @@ A free, full-stack coding career platform — structured learning paths, real-wo
 - Full lesson viewer with content, code examples, and key takeaways
 - Mark lessons complete, earn XP, auto-advance to the next lesson
 - Previous / next navigation and breadcrumb trail
+- **Lesson quizzes** — multiple-choice questions attached to lessons; unique constraint on `(lesson_id, order_index)` ensures idempotent seeding; quiz questions seeded for 14 paths across migrations 012–016
 
 ### Challenge System
 
@@ -35,7 +38,7 @@ A free, full-stack coding career platform — structured learning paths, real-wo
 
 ### Portfolio Project System
 
-- 24 real portfolio projects seeded across all 8 paths (3 per path)
+- **63+ real portfolio projects** seeded across all 30 paths (3–4 per path)
 - Projects page — browse by enrolled path, filter by difficulty
 - Project detail page — requirements checklist, skills covered, estimated hours
 - Submit via GitHub URL + live demo link
@@ -261,8 +264,14 @@ supabase/migrations/
 ├── 007_admin.sql             # Admin role, is_admin() function, RLS policies
 ├── 008_beta_feedback.sql     # beta_feedback table for in-app feedback submissions
 ├── 009_beta_launch.sql       # beta_waitlist, beta_invites, user_activity
-└── 010_phase12.sql           # saved_code_snippets, resume_profiles,
-                              #   study_goals, study_sessions, bookmarks
+├── 010_phase12.sql           # saved_code_snippets, resume_profiles,
+│                             #   study_goals, study_sessions, bookmarks
+├── 011_new_paths.sql         # 12 new learning paths + modules, challenges, projects
+├── 012_lessons_python_js_ts.sql        # Lessons for Python, JavaScript, TypeScript paths
+├── 013_lessons_frontend_react_backend_sql_dsa.sql  # Lessons for Frontend, React, Backend, SQL, DSA
+├── 014_lessons_java_devops_cloud_security_new_paths.sql  # Lessons for Java, DevOps, Cloud, Security + new paths
+├── 015_challenges_projects_extended.sql  # Extended challenges & projects for all 18 original paths
+└── 016_quiz_questions.sql    # Quiz questions for lessons across 14 paths
 ```
 
 ---
@@ -369,6 +378,7 @@ npm run build
 | `study_goals`         | Daily study goals (title, target minutes, topic)                          |
 | `study_sessions`      | Logged study sessions (duration, date, topic, notes)                      |
 | `bookmarks`           | Saved lessons / challenges / projects / paths per user                    |
+| `lesson_quizzes`      | Multiple-choice quiz questions attached to lessons (unique per lesson + order_index) |
 
 Row-Level Security (RLS) is enabled on all tables. Admins receive elevated read/write policies controlled by the `is_admin()` SQL function and the `profiles.role` column.
 
